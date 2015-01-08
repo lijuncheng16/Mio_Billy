@@ -1,0 +1,42 @@
+<div class="modal-header">
+  <h3 class="modal-title">{{modalLabel}} User</h3>
+</div>
+<div class="username" ng-show="edit">
+  Username: <strong>{{user.username}}</strong>
+</div>
+<form role="form" name="userForm" novalidate>
+  <div class="modal-body">
+    <div class="form-group" ng-hide="edit" show-errors>
+      <label for="username">Username</label>
+      <input class="form-control" type="text" name="username" ng-model="user.username" id="username" required />
+    </div>
+    <div class="form-group" show-errors>
+      <label for="name">Name</label>
+      <input class="form-control" type="text" name="name" ng-model="user.name" id="name" required />
+    </div>
+    <div class="form-group" show-errors>
+      <label for="email">E-mail</label>
+      <input class="form-control" type="email" name="email" ng-model="user.email" id="email" required />
+    </div>
+    <div class="form-group" ng-if="userIsAdmin" show-errors>
+      <label for="group">Type</label>
+      <select name="group" ng-model="user.group" id="group" class="form-control" data-ng-options="type.value as type.label for type in userTypes" required />
+      </select>
+    </div>
+    <div class="form-group">
+      <a class="btn btn-link" href ng-click="editPassword()" ng-show="edit">Change password</a>
+    </div>
+    <div class="form-group" ng-show="passwordEdit || !edit" show-errors>
+      <label for="password">Password</label>
+      <input class="form-control" type="password" name="password" ng-model="user.password" id="password" ng-required="passwordEdit || !edit" />
+    </div>
+    <div class="form-group" ng-show="passwordEdit || !edit" show-errors>
+      <label for="password2">Confirm password</label>
+      <input class="form-control" type="password" name="password2" password-match="user.password" ng-model="user.password2" id="password2" ng-required="passwordEdit || !edit" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <input type="button" class="btn" ng-click="cancel()" value="Cancel">
+    <button ng-click="saveUser(user)" class="btn btn-primary" ng-disabled="userForm.$invalid">{{modalLabel}}</button>
+  </div>  
+</form>

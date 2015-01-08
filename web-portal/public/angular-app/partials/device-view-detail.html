@@ -1,0 +1,21 @@
+<div class="row">
+  <div class="col-md-9">
+    <div class="media grl-padding">
+      <img ng-if="device.properties && device.properties.device_image" class="media-object pull-left img-thumbnail" ng-src="{{device.properties.device_image}}" alt="Device Image" height="150" width="150">
+      <div class="media-body">
+        <p class="item-detail"><strong>Device Name: </strong><span>{{device.name}}</span></p>
+        <p class="item-detail"><strong>Description: </strong><span>{{device.info}}</span></p>
+        <p ng-if="device.location.street || device.location.building || device.location.floor || device.location.room">
+          <strong>Address: </strong>
+          <span ng-if="device.location.street">Street: {{device.location.street}},</span>
+          <span ng-if="device.location.building">Building: {{device.location.building}}, </span>
+          <span ng-if="device.location.floor">Floor: {{device.location.floor}}, </span>
+          <span ng-if="device.location.room">Room: {{device.location.room}}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="grl-padding"><qr size="150" text="qrString"></qr></div>
+  </div>
+</div>

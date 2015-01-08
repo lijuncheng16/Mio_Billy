@@ -1,0 +1,19 @@
+<div class="grl-padding">
+  <div class="row">
+    <div class="col-md-12">
+      <p>Here you can monitor a set of devices, by watching their timeseries data overlapping. If you would like to add a device, you can look it up with the device browser and drag and drop it. Pressing save will add the device to the monitor.</p>
+      <!--  <p>To create a new monitor use the device browser to select the devices you would like to add.</p> -->
+      <div class="form-group">
+        <label for="monitorName">Give a name to this monitor:</label>
+        <input class="form-control" ng-model="monitorName" id="monitorName">
+      </div>
+      <button class="btn blue-btn pull-right" ng-click="saveMonitor()" ng-disabled="monitorName==''">Create monitor</button>
+    </div>
+  </div>
+</div>
+<div class="row" ng-repeat="device in devices">
+  <div class="col-md-12">
+    <h3>{{device.name}}</h3>
+    <div timeseries device="device"></div>
+  </div>
+</div>

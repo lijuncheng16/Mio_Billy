@@ -1,0 +1,32 @@
+<div class="grl-padding">
+  <p>There are commands available for this <span class="">{{device.name}}</span> device. In this area, you will be able to control the device directly.</p>
+  <table class="table">
+    <thead>
+      <th>Transducer</th>
+      <th>Last Value</th>
+      <th>New Value</th>
+      <th></th> 
+    </thead>
+    <tbody>
+      <tr ng-repeat="transducer in filtered = (device.transducers | filter: {isActuable: true})" ng-switch="transducer.unit">
+        <td>{{transducer.name}}</td>
+        <td>{{transducer.lastValue ? transducer.lastValue : '?'}}</td> 
+        <td ng-switch-default > 
+          <input type="number" ng-model="$parent.command.value" min="{{transducer.min}}" max="{{transducer.max}}"/>
+          <div class="input-help">
+              Error 
+          </div>  
+        </td>     
+        <td ng-switch-when="enum">
+          <select ng-model="$parent.command" ng-options="enum.name for enum in transducer.enum"></select>
+        </td>
+        <td><button class="btn blue-btn" ng-disabled="isValid(command)" ng-click="runCommand(transducer,command)"><i class="fa fa-arrow-circle-right"></i>Run</button></td>
+      </tr>
+      <tr>
+        <td ng-show="filtered.length==0 && device.transducers.length>0" colspan="4">
+          It looks like this device has no actuable transducers
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

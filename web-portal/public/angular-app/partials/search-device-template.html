@@ -1,0 +1,6 @@
+<li>
+  <span bind-html-unsafe="match.label | typeaheadHighlight:query"></span>
+  <a ui-sref="device.view.detail({id:match.model.event})">View</a>
+  <a ui-sref="device.move({id:match.model.event})">Move</a>
+  <a ui-sref="device.permissions({id:match.model.event})">Permissions</a>
+</li>

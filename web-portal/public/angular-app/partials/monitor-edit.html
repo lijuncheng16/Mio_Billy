@@ -1,0 +1,32 @@
+<div class="modal-header">
+  <h3 class="modal-title">Edit monitor</h3>
+</div>
+<div class="modal-body">
+  <p>Here you can update monitor name and remove transducers from it.</p>
+  <div class="form-group">
+    <label for="monitorName">Monitor name</label>
+    <input type="text" class="form-control"  ng-model="monitorName" />
+  </div>
+  <label>Current transducers</label>
+  <table class="table">
+    <thead>
+      <th>Device name</th>
+      <th>Transducer name</th>
+      <th>Select to remove</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="transducer in monitor.transducers">
+        <td>{{transducer.deviceName}}</td>
+        <td>{{transducer.name}}</td>
+        <td><input type="checkbox" checklist-model="transducersToRemove" checklist-value="transducer"></td>
+      </tr>
+    </tbody>
+  </table>
+  <div cg-busy="promise"></div>
+  <div cg-busy="result"></div>
+  <div cg-busy="devicePromise"></div>
+</div>    
+<div class="modal-footer">
+  <button class="btn link-button" ng-click="cancel()">Cancel</button>
+  <button type="button" class="btn blue-btn" ng-click="saveChanges(monitorName)">Save changes</button>
+</div>

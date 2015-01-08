@@ -1,0 +1,53 @@
+<div class="modal-header" >
+    <h3 class="modal-title" ng-if="!isUpdate">Add folder</h3>
+    <h3 class="modal-title" ng-if="isUpdate">Edit folder</h3>
+</div>
+<form role="form" ng-submit="submitFolder()" novalidate>
+    <div cg-busy="loadFolder"></div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="foldername">Folder Name</label>
+            <input class="form-control" type="text" name="foldername" ng-model="folder.folder_name"  id="foldername" required />
+        </div>
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group" ng-if="user.group!='user'">
+                    <label for="folder_mapUri">Upload Map Image</label>
+                    <input type="file" name="folder_mapUri" ng-file-select="onFileSelect($files)" accept="image/*" id="folder_mapUri" />
+                </div>
+            </div>
+            <div class="col-md-1">
+                <strong> OR</strong>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group" ng-if="user.group!='user'">
+                    <label for="folder_mapUri">Provide the URL of an image</label>
+                    <input class="form-control" type="text" id="folder_mapUriUrl" name="folder_mapUri" ng-model="folder.folder_mapUriUrl">
+                </div>
+            </div>
+        </div>
+        <a ng-if="isUpdate && folder.folder_mapUri" ng-href="{{folder.folder_mapUri}}" class="img-preview" target="_blank">
+          <img class="img-rounded" ng-src="{{folder.folder_mapUri}}"/>
+        </a>
+        <div ng-if="folder.folder_id != 'root' && folder.folder_id.indexOf('_favorites') == -1" ng-cloak>
+            <h3>Select folder location:</h3>
+            <span ng-if="isUpdate">Current :{{folder.parent.name}}</span>
+            <div
+                data-tree-view="true"
+                data-tree-id="modalBrowser"
+                data-tree-show-search="false" 
+                data-node-callback="selectDevice"
+                data-collection-callback="selectFolder"
+                data-hide-device="true"
+                data-hide-root="!showRoot"
+                data-expand-all="true">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div cg-busy="savingPromise"></div>
+        <input type="button" class="link-button" ng-click="cancel()" value="Cancel"/>
+        <button type="submit" class="btn blue-btn" ng-show="isUpdate" ng-disabled="form.$invalid || isNotSelect()">Update</button>
+        <button type="submit" class="btn blue-btn" ng-show="!isUpdate" ng-disabled="form.$invalid || isNotSelect()">Create</button>
+    </div>
+</form>

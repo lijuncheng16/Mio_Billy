@@ -1,0 +1,14 @@
+<div ng-if="showFolderName" class="row">
+  <h1>{{folder.name}}</h1>
+  <p>Map view of devices in this folder</p>
+</div>
+<div class="row">
+  <div id="the-ol-map" class="the-ol-map" style="min-height:200px;">
+    <div id="popup" class="ol-map-map">
+      <p>{{device.name}}</p>
+      <p>{{device.info}}</p>
+      <a ui-sref="device.view.detail({id:device.id})" class="btn btn-link">View</a>
+    </div>
+  </div>
+</div>
+<div cg-busy="folderLoading"></div>

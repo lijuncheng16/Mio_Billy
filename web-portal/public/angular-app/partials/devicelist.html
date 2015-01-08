@@ -1,0 +1,37 @@
+<div class="container-fluid" >
+  <div class="row" >
+    <div class="col-md-12">
+        <h2 class="pull-left title">{{selectedFolder.name}}</h2>
+        <div class="pull-left folder-actions">
+          <a ng-if="folderDetail.properties && folderDetail.properties.mapUri" ui-sref="device.map({folder:selectedFolder.id})" class="btn gray-btn"><i class="fa fa-map-marker"></i>Map View</a>
+          <a ng-if="(user.group == 'admin' && isOwner(selectedFolder.id))" ui-sref="device.permissions({id:selectedFolder.id,isFolder:1})" class="btn gray-btn"><i class="fa fa-cog"></i>Manage Permissions</a>
+          <button ng-if="(user.group == 'admin' && isPublishOrOwner) || selectedFolder.isFavorite" type="button" class="btn gray-btn" ui-sref="device.editFolder({folders:selectedFolder.id})" ><i class="fa fa-pencil-square-o"></i>Edit</button>
+          <button ng-if="selectedFolder.id != 'root' && selectedFolder.id.indexOf('_favorites') == -1 && ((user.group == 'admin' && isPublishOrOwner)  || selectedFolder.isFavorite)" type="button" class="btn gray-btn" ng-click="deleteFolder()" ng-cloak><i class="fa fa-trash-o"></i>Remove</button>
+        </div>  
+        <table class="table">
+          <thead>
+            <th>Device Name</th>
+            <th>Device Info</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="device in devices" class="device-row">
+              <td class="device-info devices-wrap">
+                {{device.name}}
+                <div class="btn-group device-list-actions">
+                  <span><a ui-sref="device.view.detail({id:device.id})" class="btn btn-link">View</a> |</span>
+                  <span ng-if="user.group == 'admin' && (isOwner(device.id) || isPublisher(device.id))"><a ui-sref="device.view.edit({id:device.id})" class="btn btn-link">Edit</a> |</span>
+                  <span><a ui-sref="device.view.favorites({id:device.id})" class="btn btn-link">Add to favorite</a> |</span>
+                  <span ng-if="user.group == 'admin' && isOwner(device.id)"><a ui-sref="device.permissions({id:device.id})" class="btn btn-link">Manage Permissions</a></span><span ng-if="selectedFolder.isFavorite"> |</span>
+                  <span><button ng-if="selectedFolder.isFavorite" class="btn btn-link" ng-click="removeFromFavorite(device)">Remove from favorite</button></span>
+                </div>
+              </td>
+              <td>{{device.meta.info}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div cg-busy="loadDevices"></div>
+        <div cg-busy="deleteFolder"></div>
+        <div class="warning" ng-show="devices.length <=0">There are no devices in this folder</div>
+    </div>
+  </div>
+</div>

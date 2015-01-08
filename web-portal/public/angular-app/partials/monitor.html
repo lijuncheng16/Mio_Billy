@@ -1,0 +1,29 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-3 device-browser">
+      <label>Device browser</label>
+      <div
+        data-tree-view="true"
+        data-tree-id="devBrowserMonitor"
+        data-tree-show-search="true"
+        data-node-callback="addDevice"
+        data-collection-callback="selectedFolder"
+        >
+      </div>
+    </div>
+    <div class="col-sm-9 col-md-9">
+      <h3>Monitor devices</h3>
+      <div class="tabs-container">
+        <ul class="nav nav-tabs" role="tablist">
+          <li ui-sref-active="active" ng-repeat="monitor in monitors | orderBy:id:false">
+            <a href="#" ui-sref="monitor.view({id:monitor.id})">{{monitor.name}}</a>
+          </li>
+          <li ui-sref-active="active">
+            <a href="#" ui-sref="monitor.add"><i class="fa fa-plus"></i>New</a>
+          </li>
+        </ul>
+        <div ui-view></div>
+      </div>
+    </div>
+  </div>
+</div>

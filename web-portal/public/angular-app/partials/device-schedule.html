@@ -1,0 +1,38 @@
+<div class="grl-padding">
+  <div class="row">
+  <div class="col-md-10">
+    <p>Here you will be able to view the schedules that the device <strong class="">{{device.name}}</strong> has, as well as create new one and edit existing ones.</p>
+  </div>
+  <div class="col-md-2">
+    <button type="button" class="btn blue-btn" ui-sref="device.view.schedule.modalschedule({schedule:''})" ><i class="fa fa-plus"></i>Add</button>
+  </div>
+</div>
+<table class="table">
+  <thead>
+    <th>Schedule</th>
+    <th>Actions</th>    
+  </thead>
+  <tbody>
+      <tr ng-repeat="sched in schedule.schedules track by $index">
+        <td class="col-md-6">
+          <p>Execute {{sched.info}} <span ng-if="sched.freq">, every {{sched.freq}}</span></p>
+          <!-- <p ng-if="sched.bymonth || sched.byday">
+            <span ng-if="sched.bymonth">On the months {{sched.bymonth}}</span>
+            <span ng-if="sched.byday">On the days {{sched.byday}}</span>
+          </p> -->
+          <p>Starting on {{sched.time.toISOString()}} <span ng-if="sched.until"><br>until the {{sched.until}}</span></p>
+          <p ng-if="sched.exdate">
+            except on the: <span ng-repeat="exdate in sched.exdate | orderBy: orderByVal">{{exdate}}{{$last ? '':', '}}</span>
+          </p>
+        </td>
+        <td class="col-md-6">
+          <div class="btn-group">
+            <button class="btn" ui-sref="device.view.schedule.modalschedule({schedule:sched.id})" >Edit</button>
+            <button class="btn" ng-click="schedule.remove(sched.id)">Remove</button>
+            <button class="btn" ui-sref="device.view.schedule.modalexception({schedule:sched.id})" >Manage Exception</button>
+          </div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+</div>

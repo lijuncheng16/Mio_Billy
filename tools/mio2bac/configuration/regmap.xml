@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<network>
+<regMap node="60b6e59a68cbec6817cfe0a9d399e367_data">
+	<transducer name="Voltage" id="2732" />
+	<transducer name="Temperature Set Point" id="2735" />
+	<transducer name="RSSI" id="2743" />
+	<transducer name="Current Mode" id="2752" />
+	<transducer name="User Requested Setpoint" id="2733" />
+	<transducer name="Set Point Type" id="2741" />
+	<transducer name="Set point Pressure" id="2742" />
+	<transducer name="Insufficient Pressure Value" id="2746" />
+	<transducer name="HVAC Mode" id="2747" />
+	<transducer name="Error Register" id="2750" />
+	<transducer name="Branch Line Requested Pressure" id="2757" />
+	<transducer name="Branch Line Actual Pressure" id="2158" />
+	<transducer name="Temperature" id="2738" />
+</regMap>
+</network>

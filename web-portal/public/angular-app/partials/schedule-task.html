@@ -1,0 +1,36 @@
+<div class="container schedule" ng-if="step==1">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="multischedule step-1">	
+				<h3>Schedule</h3>
+				<p>Here you can create a schedule and then go to the next step to select all devices to schedule</p>
+				<div schedule-form ></div>
+				<button type="button" class="btn blue-btn pull-right" ng-click="goToSelectDevices()" ng-disabled="form.$invalid || isScheduleRequired()" >Select Devices</button> 
+			</div>
+		</div>	
+	</div>	
+</div>
+<div class="container-fluid" ng-if="step==2">
+	<div class="multischedule step-2" >
+		<div class="row">    
+			<div class="col-sm-3 col-md-3 device-browser">
+				<label>Device browser</label>
+				<div
+				data-tree-view="true"
+				data-tree-id="scheduleTask"
+				data-tree-show-search="true"
+				data-node-callback="addDevice"
+				data-collection-callback="selectedFolder">
+				</div>
+			</div>
+			<div class="col-sm-9 col-md-9">
+				<div class="grl-padding">
+					<button type="button" class="btn back-btn" ng-click="comeBack()" ><i class="fa fa-angle-left"></i>Back</button>
+					<h3>Selected devices</h3>
+					<p>Here you can select multiple commands for multiple devices simultaneously. Select the devices using the device browser, then for each command select the value to run int the set schedule.</p>
+					<div multicontrol data-callback-function="createSchedule"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

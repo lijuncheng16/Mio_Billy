@@ -1,0 +1,19 @@
+<div class="container-fluid">
+  <div class="row">    
+    <div class="col-sm-3 col-md-3 device-browser">
+      <label>Device browser</label>
+      <div
+        data-tree-view="true"
+        data-tree-id="devBrowserMulticontrol"
+        data-tree-show-search="true"
+        data-node-callback="addDevice"
+        data-collection-callback="selectedFolder">
+      </div>
+    </div>
+    <div class="col-sm-9 col-md-9">
+      <h3>Selected devices</h3>
+      <p>Here you can run multiple commands for multiple devices simultaneously. Select the devices using the device browser, then for each transducer select the value to run with.</p>
+      <div multicontrol></div>
+    </div>
+  </div>
+</div>

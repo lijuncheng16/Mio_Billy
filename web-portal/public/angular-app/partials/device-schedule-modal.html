@@ -1,0 +1,20 @@
+<div class="modal-header" >
+    <h3 class="modal-title" ng-if="!isUpdate">Add schedule action</h3>
+    <h3 class="modal-title" ng-if="isUpdate">Edit Schedule action</h3>
+</div>
+<div class="modal-body">
+  <p ng-if="!isUpdate">
+    Here you can create a schedule for a device
+  </p>
+  <p ng-if="isUpdate">
+    Here you can edit an existing schedule
+  </p>
+  <div schedule-form ></div>
+</div>
+<div class="modal-footer">
+    <input type="button" class="link-button" ng-click="cancel()" value="Cancel"/>
+    <button type="submit" class="btn blue-btn" ng-if="isUpdate" ng-click="submit()">Edit Schedule</button>
+    <button type="submit" class="btn blue-btn" ng-if="!isUpdate" ng-click="submit()">Create</button>
+    
+</div>
+

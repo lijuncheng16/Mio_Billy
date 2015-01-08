@@ -1,0 +1,16 @@
+<div>
+  <h3>Monitor devices</h3>
+  <p>Here you can monitor a set of devices, by watching their timeseries data overlapping. If you would like to add a device, you can look it up with the device browser and drag and drop it. Pressing save will add the device to the favorite folder.</p>
+  <div class="tabs-container">
+    <ul class="nav nav-tabs" role="tablist">
+      <li ui-sref-active="active" ng-repeat="monitor in monitors">
+        <a href="#" ui-sref="monitor.view({id:monitor.id})">{{monitor.name}}</a>
+      </li>
+      <li ui-sref-active="active">
+        <a href="#" ui-sref="monitor.add">Create</a>
+      </li>
+    </ul>
+    <p ng-repeat="monitor in monitors">{{monitor.name}}</p>
+  <div ui-view></div>
+  </div>
+</div>

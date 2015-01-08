@@ -1,0 +1,19 @@
+<div class="row grl-padding">
+  <div class="col-md-12">
+    <div class="form-group  pull-right">
+      <button class="btn gray-btn" ng-click="edit()"><i class="fa fa-pencil-square-o"></i>Edit</button>
+      <button class="btn gray-btn" ng-click="saveChanges()" ng-disabled="!unsavedTransducers"><i class="fa fa-floppy-o"></i>Save changes</button> 
+      <button class="btn gray-btn" ng-click="delete()"><i class="fa fa-trash-o"></i>Delete</button>
+    </div>  
+    <div cg-busy="usersUpdate"></div>
+    <div cg-busy="delete"></div>
+    <div cg-busy="saveMonitor"></div>
+    <div cg-busy="devicePromise"></div>
+  </div>
+</div>
+<div class="row" ng-repeat="device in devices">
+  <div class="col-md-12">
+    <h3>{{device.name}}</h3>
+    <div timeseries device="device"></div>
+  </div>
+</div>

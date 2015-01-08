@@ -1,0 +1,36 @@
+<div class="container" ng-init="getUsers()">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <a class="add-user btn btn-primary pull-right" ui-sref="user.add">Add user</a><input ng-model="query" placeholder="Search users" class="user-search form-control pull-right">
+      </div>
+      <table class="table">
+        <thead>
+          <th>Name</th>
+          <th>User</th>
+          <th>Email</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="user in userList | filter: query | orderBy: 'name'">
+            <td>{{user.name}}</td>
+            <td>{{user.username}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.group}}</td>
+            <td>
+              <a ui-sref="user.view({username:user.username})" title="View details">View</a>
+              <a ui-sref="user.edit({username:user.username})" title="Edit this user">Edit</a>
+              <a href ng-click="removeUser(user.username)" title="Remove this user">Delete</a>
+            </td>
+            <tr ng-show="(userList | filter:query).length==0">
+              <td colspan="5"><strong>No results matched your search</strong></td>
+            </tr>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div cg-busy="usersGet"></div>
+</div>
+

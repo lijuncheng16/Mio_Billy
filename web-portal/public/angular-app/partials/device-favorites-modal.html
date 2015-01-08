@@ -1,0 +1,44 @@
+<div class="modal-header">
+  <h3 class="modal-title">Add device to favorites</h3>
+</div>
+<form role="form" ng-submit="submit()" novalidate>
+  <div class="modal-body" >
+    <div class="clearfix">
+      <p>Here you can add a device to your favorites. Just pick a folder from the list.</p>
+      <p><strong>Device Name:</strong> {{device.name}}</p>
+      <div class="col-md-6">
+        Choose a folder
+        <div class="browser" >
+          <div class="foldersList" >
+            <div
+                data-tree-view="true"
+                data-tree-id="devBrowserFavorites"
+                
+                data-tree-show-search="false"
+                data-node-callback="selectDevice"
+                data-collection-callback="addFavorite"
+                data-hide-root="true"
+                data-hide-device="true"
+                data-add-folder="device.view.favorites.addfolder"
+                data-from-modal="true">
+            </div>
+          </div>
+        </div>
+        <p data-ng-show="isAlreadySelected">Folder is already selected</p>
+      </div>
+      <div class="col-md-6" >
+        <label>Add to:</label>
+        <ul class="list-group">
+          <li class="list-group-item" ng-repeat="favorite in newFavorites">
+            {{favorite.name}}<span ng-click="deleteFavorite(favorite)" class="close-btn"><i class="fa fa-times pull-right"></i></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div cg-busy="favoritePromise"></div>
+    <input type="button" class="btn link-button" ng-click="cancel()" value="Cancel" />
+    <input type="submit" class="btn blue-btn" value="Save favorites"/>
+  </div>
+</form>

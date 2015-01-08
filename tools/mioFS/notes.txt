@@ -1,0 +1,90 @@
+Event Node:a5ed2cdcc39a52b0aa94e724a0adbc79_data
+		TrasducerValue:
+			Name: Thermometer Digital
+			ID: 1745
+			Raw Value: 209
+			Typed Value: 20.900000
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Thermometer Analog
+			ID: 1746
+			Raw Value: 522
+			Typed Value: 22.695000
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: RSSI
+			ID: 1747
+			Raw Value: 0
+			Typed Value: 0.000000
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Ping
+			ID: 1748
+			Raw Value: 0
+			Typed Value: 0.000000
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Motion Sensor
+			ID: 1749
+			Raw Value: 0
+			Typed Value: 0.000000
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Microphone
+			ID: 1750
+			Raw Value: 68
+			Typed Value: 68.000000
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Light Meter
+			ID: 1751
+			Raw Value: 999
+			Typed Value: 20.727272
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Humidity Sensor
+			ID: 1752
+			Raw Value: 152
+			Typed Value: 36.666668
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Battery Level
+			ID: 1753
+			Raw Value: 225
+			Typed Value: 2.250000
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Barometer
+			ID: 1754
+			Raw Value: 98307
+			Typed Value: 98307.000000
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Accelerometer Z
+			ID: 1755
+			Raw Value: 556
+			Typed Value: -0.297273
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Accelerometer Y
+			ID: 1756
+			Raw Value: 618
+			Typed Value: 9.501832
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+		TrasducerValue:
+			Name: Accelerometer X
+			ID: 1757
+			Raw Value: 509
+			Typed Value: 1.386754
+			Timestamp: 2014-02-25T04:45:51.269353-0600
+
+#run example
+./bin/miofs -u [username] -p [password] -f /tmp/teste/d
+
+#add -o allow_other in order to allow other users to access the file system
+#user_allow_other must be present in /etc/fuse.conf 
+
+Lutron A B and C
+237b02a8008a3fa30bbfb8114442abc4_data
+688185e424d2eda7d4341167440a2f0f_data
+6facad2d487fcdabc07a6d948a89cd95_data

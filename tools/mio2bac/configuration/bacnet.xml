@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<BACNET
+  jid-username="scaife_admin@sensor.andrew.cmu.edu"
+  jid-password="bosch2013"
+  location="scaife"
+  local_ip="128.237.204.10/20"
+  bacnet_port="47808"
+  segmentation-type="segmented-both"
+  foreign_ttl="90"
+  max_apdu_len="1024">
+  <device
+    event_node_id="60b6e59a68cbec6817cfe0a9d399e367_data"
+    device_type="wistat"
+    bacnet_name="Wistat"
+    bacnet_id="599"
+    vendor_id="5"
+    location="SH208"/>
+</BACNET>

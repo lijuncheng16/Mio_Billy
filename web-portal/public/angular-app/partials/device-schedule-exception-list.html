@@ -1,0 +1,40 @@
+<table class="table">
+  <thead>
+    <th></th>
+    <th></th>
+  </thead>
+  <tbody>
+    <tr ng-repeat="exception in schedule.exdate track by $index">
+      <td>{{exception}}</td>
+      <td>
+        <a ng-click="removeException($index,exception)">remove</a>
+      </td>
+    </tr>
+    <tr>
+      <td>  
+        <label for="startDate">Start Date</label>     
+        <p class="input-group" >
+          <input id="startDate" type="text" class="form-control" datepicker-popup="shortDate" ng-model="date.startDate" is-open="datePicker.sdOpen" min-date="today" max-date="date.endDate"  close-text="Close" />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open($event,'sdOpen')">
+              <i class="glyphicon glyphicon-calendar"></i></button>
+          </span>
+        </p>
+        <label for="rangeDate" class="checkbox-inline">
+          <input type="checkbox"  ng-model="checked"/>
+          <label for="endDate">Specify end Date: </label>  
+        </label>
+        <p class="input-group" ng-if="checked">
+          <input id="endDate" type="text" class="form-control" datepicker-popup="shortDate" ng-model="date.endDate" is-open="datePicker.edOpen" min-date="date.startDate"  close-text="Close" />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open($event,'edOpen')">
+              <i class="glyphicon glyphicon-calendar"></i></button>
+          </span>
+        </p>
+      </td>
+      <td>
+        <a ng-click="addException()">add</a>
+      </td>
+    </tr>
+  </tbody>
+</table>

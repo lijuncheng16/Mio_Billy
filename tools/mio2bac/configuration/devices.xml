@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<DEVICES>
+<DEVICE device="wistat">
+   <OBJECT tran_name="RSSI" bac_type="Analog Input"/>
+   <OBJECT tran_name="Voltage" bac_type="Analog Input"/>
+   <OBJECT tran_name="Branch Line Actual Pressure" bac_type="Analog Input"/>    
+   <OBJECT tran_name="Branch Line Requested Pressure" bac_type="Analog Input"/>
+   <OBJECT tran_name="Current Mode" bac_type="Analog Input"/>
+   <OBJECT tran_name="Temperature Set Point" bac_type="Analog Input"/>
+   <OBJECT tran_name="User Requested Setpoint" bac_type="Analog Input"/>
+   <OBJECT tran_name="Error Register" bac_type="Analog Input"/>
+   <OBJECT tran_name="Set point Pressure" bac_type="Analog Input"/>
+   <OBJECT tran_name="Insufficient Pressure Value" bac_type="Analog Input"/>
+   <OBJECT tran_name="HVAC Mode" bac_type="Analog Input"/>
+   <OBJECT tran_name="Temperature" bac_type="Analog Input"/>
+   <OBJECT tran_name="Set Point Type" bac_type="Analog Input"/>
+</DEVICE>
+</DEVICES>
+  
+

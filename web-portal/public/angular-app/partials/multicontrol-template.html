@@ -1,0 +1,44 @@
+<div class="devices-table">
+  <div cg-busy="running"></div>
+  <table class="table">
+    <thead>
+      <th>Device name</th>
+      <th>Transducer</th>
+      <th>Last value</th>
+      <th>New value</th>
+      <th></th>
+      <tbody ng-repeat="device in selectedDevices">
+        <tr>
+          <td><strong>{{device.name}}</strong></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td><a href ng-click="removeDevice(device)" class="close-btn"><i class="fa fa-times"></i></a></td>
+        </tr>
+        <tr ng-repeat="transducer in filtered = (device.transducers | filter: {isActuable: true})" ng-switch="transducer.unit" >
+          <td></td>
+          <td>{{transducer.name}}</td>
+          <td>{{transducer.lastValue ? transducer.lastValue : '?'}}</td>
+          <td ng-switch-default > 
+            <input type="number" device="{{device.id}}" transducer="{{transducer.name}}" ng-model="$parent.command.value" min="{{transducer.min}}" max="{{transducer.max}}" />
+            <div class="input-help">Error</div> 
+          </td>     
+          <td ng-switch-when="enum">
+            <select ng-model="$parent.command" device="{{device.id}}" transducer="{{transducer.name}}" ng-options="enum.name for enum in transducer.enum">
+            </select>
+          </td>
+          <td>
+            <a href ng-click="removeTransducer(device,transducer)" class="close-btn"><i class="fa fa-times"></i></a>
+            <span ng-class="{success: transducer.status=='success', error: transducer.status=='error'}"></span>
+            <span ng-if="standBy">{{objCommand.transducer.device_id==device.id && objCommand.transducer.name==transducer.name ? 'loading...' : transducer.status ? transducer.status : 'stand by'}}</span>
+          </td>
+        </tr>
+        <tr ng-show="filtered.length==0 && device.transducers.length>0">
+          <td colspan="5"><p>It looks like this device has no actuable transducers</p></td>
+        </tr>
+      </tbody>
+    </thead>
+  </table>
+  <div cg-busy="promise"></div>
+  <button class="btn blue-btn pull-right" ng-click="submit()"><i class="fa fa-arrow-circle-right"></i>{{labelSubmitBtn}}</button>
+</div>

@@ -1,0 +1,23 @@
+<div class="modal-header">
+  <h3 class="modal-title">Add transducers to monitor</h3>
+</div>
+<div class="modal-body">
+  <p>This is the list of transducers for this device. Please select the ones you'd like to add to this monitor.</p>
+  <p>Selected device: <strong>{{device.name}}</strong></p>
+  <table class="table">
+    <thead>
+      <th>Transducer name</th>
+      <th>Select to add</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="transducer in device.transducers">
+        <td>{{transducer.name}}</td>
+        <td><input type="checkbox" checklist-model="newTransducers" checklist-value="transducer"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>    
+<div class="modal-footer">
+  <button class="btn link-button" ng-click="cancel()">Cancel</button>
+  <button type="button" class="btn blue-btn" ng-click="addTransducers()">Add transducers</button>
+</div> 

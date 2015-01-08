@@ -1,0 +1,7 @@
+<div ng-if="showTransducersToggle && !gettingGraphs && !noGraphs && !graphErrors" class="btn-group">
+  <p>Toggle transducers you would like to view or hide</p>
+  <label ng-repeat="transducer in device.transducers" class="btn btn-primary" ng-init="transducer.show = true" ng-model="transducer.show" btn-checkbox ng-click="togglePlot(device.id,transducer.name,transducer.show)">{{transducer.name}}</label>
+</div>
+<div ng-show="gettingGraphs" class="pad">Getting graphs</div>
+<div ng-show="noGraphs" class="pad">No graphs available</div>
+<div ng-show="graphErrors" class="pad">Could not get graph data</div>

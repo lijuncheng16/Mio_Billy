@@ -1,0 +1,117 @@
+<div class="modal-header" >
+    <h3 class="modal-title">Edit Device</h3>
+</div>
+<form role="form" ng-submit="submitDevice()" novalidate>
+    <div cg-busy="loadFolder"></div>
+    <div class="modal-body">
+        <div class="clearfix">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="device_name">Device Name</label>
+                    <input class="form-control" type="text" name="device_name" ng-model="device.name"  id="device_name" required />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="device_info">Device Description</label>
+                    <input class="form-control" type="text" name="device_info" ng-model="device.info"  id="device_info" required />
+                </div>
+            </div>
+            <div class="col-md-12">
+                <a ng-click="getPossibles()" cg-busy="loadingDevices" class="btn btn-warning pull-right">Automap</a>
+                <div class="clearfix"></div>
+                <div class="form-group">
+                    <label for="device_street">Device Street</label>
+                    <input class="form-control" type="text" name="device_street" ng-model="device.location.street"  id="device_street"  />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="device_building">Device Building</label>
+                    <input class="form-control" type="text" name="device_building" ng-model="device.location.building"  id="device_building" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="device_floor">Device Floor</label>
+                    <input class="form-control" type="text" name="device_floor" ng-model="device.location.floor"  id="device_floor"  />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="device_room">Device Room</label>
+                    <input class="form-control" type="text" name="device_room" ng-model="device.location.room"  id="device_room" />
+                </div>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="clearfix">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Device location</label>
+                    <p>Click on the map, to change its location</p>
+                    <div olmap folder-id="device.parent.id" device-id="device.id" on-click-cb="setDeviceLocation(lon,lat)"></div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group" ng-if="user.group!='user'">
+                    <label for="device_image">Upload image</label>
+                    <input type="file" name="device_image" ng-file-select="onFileSelect($files)" accept="image/*" id="device_image" />
+                </div>
+            </div>
+            <div class="col-md-1">
+                <strong>OR</strong>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group" ng-if="user.group!='user'">
+                    <label for="image_url">Provide the URL of an image</label>
+                    <input class="form-control" type="text" name="image_url" id="image_url" ng-model="device.imageUrl">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <a ng-if="device.properties && device.properties.device_image" ng-href="{{device.properties.device_image}}" class="img-preview" target="_blank">
+                    <img class="img-rounded img-thumbnail" ng-src="{{device.properties.device_image}}"/>
+                </a>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="clearfix">
+            <div class="col-md-12">
+                <h2>Select device location:</h2>
+                <span>Current: {{device.parent.name}}</span>
+                <div
+                data-tree-view="true"
+                data-tree-id="parentDevice"
+                data-tree-show-search="false" 
+                data-node-callback="selectDevice"
+                data-collection-callback="selectFolder"
+                data-hide-device="true"
+                data-expand-all="true"
+                data-hide-favorite="true"
+                data-add-folder="device.addfolder">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <div cg-busy="createPost"></div>
+    <input type="button" class="btn link-button" ng-click="cancel()" value="Cancel"/>
+    <button type="submit" class="btn blue-btn"  ng-disabled="form.$invalid || isNotSelect()">Update</button>
+</div>
+</form>
+<script type="text/ng-template" id="automap.html">
+  <div class="modal-header">
+      <h3 class="modal-title">Automap</h3>
+  </div>
+  <div class="modal-body">
+      <ul class="unstyled">
+          <li ng-repeat="d in devices">
+            <span ng-if="d.parent.parent">{{d.parent.parent.name}} > </span><span ng-if="d.parent">{{d.parent.name}} > </span>{{d.name}} <a ng-click="copy(d)">Copy</a>
+          </li>
+      </ul>
+  </div>
+  <div class="modal-footer">
+      <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+      <div cg-busy="loadingCopy"></div>
+  </div>
+</script>

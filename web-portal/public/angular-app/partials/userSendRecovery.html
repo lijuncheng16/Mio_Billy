@@ -1,0 +1,16 @@
+<div class="modal-header">
+  <h3 class="modal-title">Password recovery</h3>
+</div>
+<form>
+  <div class="modal-body">
+    <p>Enter your username, and we will send you an email to reset your password</p>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input class="form-control" type="text" name="username" ng-model="username" id="username" />
+      </div>
+  </div>    
+  <div class="modal-footer">
+    <button class="btn" ng-click="cancel()">Cancel</button>
+    <button type="button" class="btn btn-primary" ng-click="sendRecoveryMail(username)">Reset password</button>
+  </div> 
+</form>

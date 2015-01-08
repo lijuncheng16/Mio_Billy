@@ -1,0 +1,14 @@
+<div class="modal-header">
+  <h3>Manage Schedule exception</h3>
+</div>
+<form role="form" name="exception-form" ng-submit="submit(exdates)" novalidate>
+  <div class="modal-body">
+    <p>Here you can manage the exceptions of a scheduled event, an exception means that on this date this event won't execute</p>
+    <div mighty-datepicker ng-model="exdates" options="options"></div>
+  </div>
+  <div class="modal-footer">
+    <div cg-busy="loading"></div>
+    <input type="button" class="btn" ng-click="cancel()" value="Cancel"/>
+    <input type="submit" class="btn btn-primary" value="Set schedule exception" />
+  </div>
+</form>

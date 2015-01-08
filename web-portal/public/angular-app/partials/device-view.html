@@ -1,0 +1,21 @@
+<div class="device-view">
+  <h1 class="pull-left">{{device.name}}</h1>
+  <div class="pull-right device-actions">
+    <a ui-sref="device.view.edit({id:device.id})" class="btn gray-btn" ng-if="user.group=='admin' && isPublishOrOwner"><i class="fa fa-pencil-square-o"></i>Edit</a>
+    <a ui-sref="device.view.favorites({id:device.id})" class="btn gray-btn"><i class="fa fa-thumb-tack"></i>Add to Favorites</a>
+    <a ui-sref="device.permissions({id:device.id})" class="btn gray-btn" ng-if="user.group=='admin' && isOwner"><i class="fa fa-cog"></i>Manage Permissions</a>
+    <button ng-if="subscrbValidator.isSubscribe" class="btn gray-btn" ng-click="subscribe()" ><i class="fa fa-sign-in"></i>Subscribe</button>
+    <button ng-if="subscrbValidator.isUnsubscribe" class="btn gray-btn" ng-click="unSubscribe()" ><i class="fa fa-sign-out"></i>Unsubscribe</button>
+  </div>
+  <div class="clearfix"></div>
+  <ul class="nav nav-tabs" role="tablist">
+    <li ui-sref-active="active"><a href="#" ui-sref="device.view.detail">Device</a></li>
+    <li ui-sref-active="active"><a href="#" ui-sref="device.view.transducers">Transducers</a></li>
+    <li ui-sref-active="active"><a href="#" ui-sref="device.view.timeseries">Time Series</a></li>
+    <li ui-sref-active="active"><a href="#" ui-sref="device.view.schedule">Schedule</a></li>
+    <li ui-sref-active="active"><a href="#" ui-sref="device.view.functions">Control</a></li>
+    <li ng-if="device.parentDetail.properties && device.parentDetail.properties.mapUri " ui-sref-active="active"><a href="#" ui-sref="device.view.map">Map</a></li>
+  </ul>
+  <div cg-busy="promise"></div>
+  <div ui-view></div>
+</div>

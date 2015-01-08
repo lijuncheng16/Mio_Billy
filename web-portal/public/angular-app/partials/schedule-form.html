@@ -1,0 +1,190 @@
+<form role="form" name="schedule-form" novalidate>
+  <div class="clearfix">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label for="scheduleDescription">Description</label>
+        <input type="text-area" ng-model="schedule.info" class="form-control" id="scheduleDescription">
+      </div>
+    </div>
+  </div>
+  <div class="line"></div>
+  <div class="clearfix">
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="scheduleTime">Start Date</label>
+        <p class="input-group">
+          <input id="scheduleTime" type="text" ng-model="schedule.time" class="form-control" datepicker-popup="shortDate" is-open="openPicker.start" min-date="today">
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="open($event,'start')"><i class="glyphicon glyphicon-calendar"></i></button>
+          </span>
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group">
+        <label><strong>Ends when:</strong></label>
+        <span class="radio">
+          <label>
+            <input type="radio" ng-model="validator.ends" name="ends" value="never">
+            Never
+          </label>
+        </span>
+        <span class="radio">
+          <label>
+            <input type="radio" ng-model="validator.ends" name="ends" value="count" >
+            After
+          </label>
+          <input ng-if="validator.ends == 'count'" type="number" ng-model="schedule.count" class="form-control" min="0"/>
+        </span>
+        <span class="radio">
+          <label>
+            <input type="radio" ng-model="validator.ends" name="ends" value="until">
+            On
+          </label>
+          <p ng-if="validator.ends == 'until'" class="input-group">
+            <input type="text" ng-model="schedule.until" class="form-control" datepicker-popup="shortDate" is-open="openPicker.until" min-date="schedule.time">
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default" ng-click="open($event,'until')"><i class="glyphicon glyphicon-calendar"></i></button>
+            </span>
+          </p>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="clearfix">
+    <div class="col-md-6">
+      <div class="form-group">
+        <div><label for="scheduleFreq">Repeats</label></div>
+        <label class="radio-inline">
+          <input type="radio" ng-model="schedule.freq" name="freq" value="DAILY"> Daily
+        </label>  
+        <label class="radio-inline">
+          <input type="radio" ng-model="schedule.freq" name="freq" value="WEEKLY"> Weekly
+        </label>  
+        <label class="radio-inline">
+          <input type="radio" ng-model="schedule.freq" name="freq" value="MONTHLY"> Monthly
+        </label>
+      </div>
+      <div class="form-group" ng-if="schedule.freq=='WEEKLY'">
+        <div><strong>Repeat on :</strong></div> 
+        <label for="sunday" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.dayOfWeek['SU']" id="sunday" />
+          SU
+        </label>
+        <label for="monday" class="checkbox-inline">           
+          <input type="checkbox" ng-model="calendar.dayOfWeek['MO']" id="monday"   />   
+          MO   
+        </label>   
+        <label for="tuesday" class="checkbox-inline">           
+          <input type="checkbox" ng-model="calendar.dayOfWeek['TU']" id="tuesday"  />   
+          TU  
+        </label>   
+        <label for="wednesday" class="checkbox-inline">           
+          <input type="checkbox" ng-model="calendar.dayOfWeek['WE']" id="wednesday"  />   
+          WE  
+        </label>   
+        <label for="thursday" class="checkbox-inline">   
+          <input type="checkbox" ng-model="calendar.dayOfWeek['TH']" id="thursday"  />   
+          TH   
+        </label>   
+        <label for="friday" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.dayOfWeek['FR']" id="friday"  />
+          FR
+        </label>
+        <label for="saturday" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.dayOfWeek['SA']" id="saturday"  />
+          SA
+        </label>  
+      </div>
+      <div class="form-group" ng-if="schedule.freq=='MONTHLY'">
+        <div><strong>Repeat on :</strong></div>
+        <label for="january" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['1']" id="janaury" />
+          Jan
+        </label>
+        <label for="february" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['2']" id="february" />
+          Feb
+        </label>
+        <label for="march" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['3']" id="march" />
+          Mar
+        </label>
+        <label for="april" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['4']" id="april" />
+          Apr
+        </label>
+        <label for="may" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['5']" id="may" />
+          May
+        </label>
+        <label for="june" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['6']" id="june" />
+          June
+        </label>
+        <label for="july" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['7']" id="july" />
+          Jul
+        </label>
+        <label for="august" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['8']" id="august" />
+          Aug
+        </label>
+        <label for="september" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['9']" id="september" />
+          Sep
+        </label>
+        <label for="october" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['10']" id="october"  />
+          Oct
+        </label>
+        <label for="november" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['11']" id="november"  />
+          Nov
+        </label>
+        <label for="december" class="checkbox-inline">
+          <input type="checkbox" ng-model="calendar.months['12']" id="december"  />
+          Dec
+        </label>
+      </div>
+      <div class="form-group">
+        <label for="scheduleInterval">Repeats every</label>
+        <input type="number" ng-model="schedule.interval" class="form-control" id="scheduleInterval" />
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="scheduleHour">Start Hour*</label>
+        <div timepicker show-meridian="false" ng-model="schedule.time" class="change-hour"></div>
+        <span>*This time is based in 24 hours</span>
+      </div>
+    </div>
+  </div>
+  <div class="line"></div>
+  <div class="clearfix">
+    <div class="col-md-12">
+      <div class="form-group" ng-if="!isMulti">
+        <label for="scheduleTransducerName">Transducer to actuate:</label>
+        <select id="scheduleTransducerName" class="form-control" ng-model="transducer.instance" ng-options="transducer.name for transducer in filtered = (device.transducers | filter: {isActuable: true})"></select>
+        <p ng-show="filtered.length==0 && device.transducers.length>0">It looks like this device has no actuable transducers</p>
+      </div>
+      <div class="form-group" ng-if="!isMulti">
+        <label for="scheduleTransducerValue">Value to set transducer to:</label>
+        <select id="scheduleTransducerValue" class="form-control" ng-if="transducer.instance.unit=='enum'" ng-model="schedule.t_value">
+          <option ng-repeat="e in transducer.instance.enum" value="{{e.value}}" ng-selected="schedule.t_value == e.value">{{e.name}}</option>
+        </select>
+        <input id="scheduleTransducerValue" class="form-control" type="number" ng-if="transducer.instance.unit!='enum'" ng-model="validator.t_value"   ng-min="{{transducer.instance.minValue}}" ng-max="{{transducer.instance.maxValue}}"/>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="recap" ng-if="!isMulti">
+        Schedule recap:
+        <p>Execute {{schedule.info}} <span ng-if="schedule.freq">, every {{schedule.freq}}</span></p>
+        <p>Starting on {{schedule.time}} <span ng-if="schedule.until"><br>until the {{schedule.until}}</span></p>
+        <p ng-if="schedule.exdate">
+          except on the: <span ng-repeat="exdate in schedule.exdate">{{exdate}}{{$last ? '':', '}}</span>
+        </p>
+      </div>
+    </div>
+  </div>  
+</form>

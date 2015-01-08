@@ -1,0 +1,25 @@
+<div class="grl-padding">
+  <p>List of transducers available in the <span class="">{{device.name}}</span>, here you can view its last state, and some information about them.</p>
+<table class="table">
+  <thead>
+    <th>Name</th>
+    <th>Values</th>
+    <th>Units</th>
+    <th>Last Value</th>
+  </thead>
+  <tbody>
+    <tr ng-repeat="transducer in device.transducers" ng-switch="transducer.unit" >
+      <td>{{transducer.name}}</td>
+      <td ng-switch-default>{{transducer.min ? 'min: '+transducer.min : ''}} {{transducer.max ? 'max: '+transducer.max : ''}}</td>
+      <td ng-switch-default>{{(transducer.unit == 'enum') ? '' : transducer.unit}}</td>
+      <td ng-switch-when="enum">
+        <span ng-repeat="value in transducer.enum">{{value.value}}{{$last ? '' : ', '}}</span>
+      </td>
+      <td ng-switch-when="enum"> 
+        <span ng-repeat="unit in transducer.enum">{{unit.name}}{{$last ? '' : ', '}}</span>
+      </td>
+      <td>{{transducer.lastValue ? transducer.lastValue : '?'}}</td>
+    </tr>
+  </tbody>
+</table>
+</div>
