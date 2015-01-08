@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://jabber.org/protocol/sox" targetNamespace="http://jabber.org/protocol/sox" elementFormDefault="qualified">
+    <xs:annotation>
+        <xs:documentation>The protocol documented by this schema is defined in
+XEP-????: http://xmpp.org/extensions/xep-????.html</xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="device">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="transducer" />
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="unit" />
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="property" />
+            </xs:sequence>
+            <xs:attribute xmlns="http://jabber.org/protocol/geoloc" ref="geoloc" />
+            <xs:attribute name="type" type="xs:string" use="optional" />
+            <xs:attribute name="timestamp" type="xs:datetime" use="optional" />
+            <xs:attribute name="serialNumber" type="xs:string" use="optional" />
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="transducer">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="unit" ref="unit" use="required" />
+        <xs:attribute name="actuate" ref="unit" use="optional" />
+        <xs:attribute name="transducerType" type="xs:string" use="optional" />
+        <xs:attribute name="manufacturer" type="xs:string" use="optional" />
+        <xs:attribute name="serialNumber" type="xs:string" use="optional" />
+        <xs:complexType>
+            <xs:element xmlns="http://jabber.org/protocol/geoloc" minOccurs="0" maxOccurs="1" ref="geoloc" />
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="unbounded" ref="property" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="unit">
+        <xs:complexType>
+            <xs:attribute name="interface" type="xs:string" use="optional" />
+            <xs:attribute name="units" ref="allowedUnits" use="required" />
+            <xs:sequence>
+                <xs:strings minOccurs="0" ref="xs:string" use="optional"/>
+            </xs:sequence>
+            <xs:attribute name="minValue" type="xs:float" use="optional" />
+            <xs:attribute name="maxValue" type="xs:float" use="optional" />
+            <xs:attribute name="resolution" type="xs:float" use="optional" />
+            <xs:attribute name="precision" type="xs:float" use="optional" />
+            <xs:attribute name="accuracy" type="xs:float" use="optional" />
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="allowedUnits">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="meter" />
+            <xs:enumeration value="gram" />
+            <xs:enumeration value="second" />
+            <xs:enumeration value="ampere" />
+            <xs:enumeration value="kelvin" />
+            <xs:enumeration value="mole" />
+            <xs:enumeration value="candela" />
+            <xs:enumeration value="radian" />
+            <xs:enumeration value="steradian" />
+            <xs:enumeration value="hertz" />
+            <xs:enumeration value="newton" />
+            <xs:enumeration value="pascal" />
+            <xs:enumeration value="joule" />
+            <xs:enumeration value="watt" />
+            <xs:enumeration value="coulomb" />
+            <xs:enumeration value="volt" />
+            <xs:enumeration value="farad" />
+            <xs:enumeration value="ohm" />
+            <xs:enumeration value="siemens" />
+            <xs:enumeration value="weber" />
+            <xs:enumeration value="tesla" />
+            <xs:enumeration value="henry" />
+            <xs:enumeration value="lumen" />
+            <xs:enumeration value="lux" />
+            <xs:enumeration value="becquerel" />
+            <xs:enumeration value="gray" />
+            <xs:enumeration value="sievert" />
+            <xs:enumeration value="katal" />
+            <xs:enumeration value="liter" />
+            <xs:enumeration value="square meter" />
+            <xs:enumeration value="cubic meter" />
+            <xs:enumeration value="meter per second" />
+            <xs:enumeration value="meter per second squared" />
+            <xs:enumeration value="reciprocal meter" />
+            <xs:enumeration value="kilogram per cubic meter" />
+            <xs:enumeration value="cubic meter per kilogram" />
+            <xs:enumeration value="ampere per square meter" />
+            <xs:enumeration value="ampere per meter" />
+            <xs:enumeration value="mole per cubic meter" />
+            <xs:enumeration value="candela per square meter" />
+            <xs:enumeration value="kilogram per kilogram" />
+            <xs:enumeration value="volt-ampere reactive" />
+            <xs:enumeration value="volt-ampere" />
+            <xs:enumeration value="watt second" />
+            <xs:enumeration value="percent" />
+            <xs:enumeration value="enum" />
+            <xs:enumeration value="lat" />
+            <xs:enumeration value="lon" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="property">
+        <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required" />
+            <xs:attribute name="value" type="xs:string" use="required" />
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="data">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:attribute name="name" type="xs:string" use="optional " />
+                <xs:attribute name="interface" type="xs:string" use="optional" />
+                <xs:attribute name="typedValue" type="xs:string" use="required" />
+                <xs:attribute name="timestamp" type="xs:datetime" use="optional" />
+                <xs:attribute name="rawValue" type="xs:string" use="optional" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="event">
+        // reference to XCAL
+    </xs:element>
+    <xs:element name="respawn">
+        // reference to XCAL
+    </xs:element>
+</xs:schema>

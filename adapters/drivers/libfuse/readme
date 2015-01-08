@@ -1,0 +1,13 @@
+Requires curl headers and object files to be installed.
+yum install curl-devel
+apt-get intall curl-dev
+
+cd libs/jsmn/
+make;cd ../..
+
+make
+ls obj
+ls bin
+
+Examples will be in bin and object reference will be located in the obj directory.
+

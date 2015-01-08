@@ -1,0 +1,1507 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE xep SYSTEM 'xep.dtd' [
+  <!ENTITY % ents SYSTEM 'xep.ent'>
+%ents;
+]>
+<?xml-stylesheet type='text/xsl' href='xep.xsl'?>
+<xep>
+<header>
+  <title>Sensor-Over-XMPP</title>
+  <abstract>This specification defines a payload format for communicating sensor and actuation information. The payload format is transported using the publish-subscribe mechanism described in XEP-0060.</abstract>
+  <legal>
+    <copyright>This XMPP Extension Protocol is copyright (c) 1999 - 2011 by the XMPP Standards Foundation (XSF).</copyright>
+    <permissions>Permission is hereby granted, free of charge, to any person obtaining a copy of this specification (the &quot;Specification&quot;), to make use of the Specification without restriction, including without limitation the rights to implement the Specification in a software program, deploy the Specification in a network service, and copy, modify, merge, publish, translate, distribute, sublicense, or sell copies of the Specification, and to permit persons to whom the Specification is furnished to do so, subject to the condition that the foregoing copyright notice and this permission notice shall be included in all copies or substantial portions of the Specification. Unless separate permission is granted, modified works that are redistributed shall not contain misleading information regarding the authors, title, number, or publisher of the Specification, and shall not claim endorsement of the modified works by the authors, any organization or project to which the authors belong, or the XMPP Standards Foundation.</permissions>
+    <warranty>## NOTE WELL: This Specification is provided on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. In no event shall the XMPP Standards Foundation or the authors of this Specification be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the Specification or the implementation, deployment, or other use of the Specification. ##</warranty>
+    <liability>In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall the XMPP Standards Foundation or any author of this Specification be liable for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising out of the use or inability to use the Specification (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if the XMPP Standards Foundation or such author has been advised of the possibility of such damages.</liability>
+    <conformance>This XMPP Extension Protocol has been contributed in full conformance with the XSF's Intellectual Property Rights Policy (a copy of which may be found at &lt;<link url='http://www.xmpp.org/extensions/ipr-policy.shtml'>http://www.xmpp.org/extensions/ipr-policy.shtml</link>&gt; or obtained by writing to XSF, P.O. Box 1641, Denver, CO 80201 USA).</conformance>
+  </legal>
+  <number>xxxx</number>
+  <status>ProtoXEP</status>
+  <type>Standards Track</type>
+  <sig>Standards</sig>
+  <approver>Council</approver>
+  <dependencies>
+    <spec>XMPP Core</spec>
+    <spec>XEP-0001</spec>
+    <spec>XEP-0060</spec>
+    <spec>XEP-0082</spec>
+  </dependencies>
+  <supersedes/>
+  <supersededby/>
+  <shortname>sox</shortname>
+  <author>
+    <firstname>Gaurav</firstname>
+    <surname>Bhatia</surname>
+    <email>gauravbhatia@cmu.edu</email>
+  </author>
+  <author>
+    <firstname>Anthony</firstname>
+    <surname>Rowe</surname>
+    <email>agr@ece.cmu.edu</email>
+  </author>
+  <author>
+    <firstname>Mario</firstname>
+    <surname>Berges</surname>
+    <email>marioberges@cmu.edu</email>
+  </author>
+  <author>
+    <firstname>Charles</firstname>
+    <surname>Spirakis</surname>
+    <email>css@google.com</email>
+  </author>
+
+  <revision>
+    <version>0.0.20</version>
+    <date>2012-08-16</date>
+    <initials>agr</initials>
+    <remark><p>Added name parameter back to TransducerValue.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.19</version>
+    <date>2011-05-18</date>
+    <initials>mbg</initials>
+    <remark><p>Minor cleanup. Moved the "Actuation" section up one level in the hierarchy.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.18</version>
+    <date>2011-04-08</date>
+    <initials>css</initials>
+    <remark><p>Add data element to enclose transducerValue and transducerSetValue.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.17</version>
+    <date>2011-03-25</date>
+    <initials>css</initials>
+    <remark><p>Cleanup typo's and wording.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.16</version>
+    <date>2011-03-24</date>
+    <initials>css</initials>
+    <remark><p>Move device type and units into the xsd.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.15</version>
+    <date>2011-03-23</date>
+    <initials>css</initials>
+    <remark><p>Text and example cleanup.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.14</version>
+    <date>2011-03-22</date>
+    <initials>css</initials>
+    <remark><p>First attempt at how/why split.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.13</version>
+    <date>2011-03-10</date>
+    <initials>gnb</initials>
+    <remark><p>Minor cleanup.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.12</version>
+    <date>2011-03-10</date>
+    <initials>css</initials>
+    <remark><p>Change TransducerValue packet's TypedValue from float to string.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.11</version>
+    <date>2011-03-03</date>
+    <initials>css</initials>
+    <remark><p>Grammar cleanup and minor clarifications.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.10</version>
+    <date>2011-03-02</date>
+    <initials>css</initials>
+    <remark><p>Move requirements to top. Add optional X_Y event node.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.9</version>
+    <date>2011-03-02</date>
+    <initials>mbg</initials>
+    <remark><p>Expanded definition of Transducer. General cleanup.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.8</version>
+    <date>2011-03-01</date>
+    <initials>css</initials>
+    <remark><p>More cleanup.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.7</version>
+    <date>2011-03-01</date>
+    <initials>css</initials>
+    <remark><p>Adjusted requirements section. More cleanup.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.6</version>
+    <date>2011-02-28</date>
+    <initials>css</initials>
+    <remark><p>Clean up typos and examples.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.5</version>
+    <date>2011-02-27</date>
+    <initials>css</initials>
+    <remark><p>Added use cases and examples.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.4</version>
+    <date>2011-02-24</date>
+    <initials>css</initials>
+    <remark><p>Update xsd and corresponding descriptions.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.3</version>
+    <date>2011-02-23</date>
+    <initials>css</initials>
+    <remark><p>Add clarifications.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.25</version>
+    <date>2011-1-23</date>
+    <initials>mbg</initials>
+    <remark><p>Added content to the How it Works section.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.2</version>
+    <date>2010-11-18</date>
+    <initials>agr</initials>
+    <remark><p>Added some use cases.</p></remark>
+  </revision>
+
+  <revision>
+    <version>0.0.1</version>
+    <date>2010-11-18</date>
+    <initials>gnb</initials>
+    <remark><p>First draft.</p></remark>
+  </revision>
+</header>
+<section1 topic='Overview' anchor='overview'>
+<p>This document defines a payload format for exchanging sensor and actuator data which can be implimented using a generic Publish-Subscribe service as described in <link url='http://www.xmpp.org/extensions/xep-0060.html'><cite>XEP-0060</cite></link>.
+It can be used as a foundation to support a wide variety of applications including: power distribution metering, home automation, monitoring and control of heating and cooling systems, infrastructure monitoring, etc.
+</p>
+</section1>
+
+<section1 topic='Requirements' anchor='reqs'>
+  <p>
+The goal of this XEP is to support ubiquitious, large-scale monitoring, operation and control of infrastructure in a way that is extensible, easy to use and secure.
+To achive this, the specific requirements are:
+  </p>
+<ol>
+<li>Provide a common data structure and access method between producers and consumers to foster interoperability.
+</li>
+<li>Allow multiple consumers of sensor information to access data from resource constrained producers with minimal burdon on the producers.
+</li>
+<li>Provide a mechanism whereby an entity is notified when new sensor data is available (i.e. allow consumers of data to avoid polling).
+</li>
+<li>Provide a mechanism whereby an entity is notified when a control request is made (i.e. allow controllers to avoid polling while waiting for work).
+</li>
+<li>Provide a mechanism whereby an entity that requests an action can get confirmation that the action has occured.
+</li>
+<li>Provide a mechanism whereby an entity is notified that an action has occured (i.e. allow requestors to avoid polling while waiting for confirmation).
+</li>
+<li>Provide security such that an authoritative entity (such as an administrator) can decide which consumers are allowed access to which producers.
+</li>
+</ol>
+</section1>
+
+<section1 topic='Glossary' anchor='glossary'>
+<p>The following terms are used throughout this document to refer to elements, objects, or actions that occur in the context of a transducer using the pubsub service. (Note: Some of these terms are specified in greater detail within the body of this document.)</p>
+<dl>
+  <di><dt>Sensor </dt><dd> A device that measures a physical quantity.</dd></di> 
+  <di><dt>Actuator </dt><dd> A device for moving or controlling a mechanism or system. </dd></di>
+  <di><dt>Transducer </dt><dd> A device that is a Sensor or Actuator or both. Transducers can also be virtualized, in the sense that they may not necessarily refer to the physical device that is directly measuring or controlling a phenomena, but rather to a software agent that serves as an intermediary.</dd></di>
+  <di><dt>PubSub Service </dt><dd>  An XMPP server or component that adheres to the protocol defined in &xep0060;.</dd></di>
+  <di><dt>Creator / Owner</dt><dd>An entity that created a node and is automatically a publisher and subscriber.</dd></di>
+  <di><dt>Subscriber</dt><dd>An entity that is allowed to subscribe to a node.</dd></di>
+  <di><dt>Publisher</dt><dd>An entity that is allowed to publish items to a node and that is automatically subscribed to the node.</dd></di>
+  <di><dt>Adapter</dt><dd>An entity that converts native transducer values into XMPP messages and vice-versa.</dd></di>
+  <di><dt>Agent</dt><dd>An XMPP client that consumes or produces data that is not an adapter. For example a piece of software that collects temperature and humidity data to compute dew-point.</dd></di>
+</dl>
+</section1>
+
+<section1 topic='Protocol' anchor='protocol'>
+<section2 topic='Devices' anchor='devices'>
+<p>To ensure uniquness, a logical device SHOULD be identified by
+a universal unique identifier (UUID) as defined by <link url='http://tools.ietf.org/html/rfc4122'><cite>RFC 4122</cite></link>.
+Consumers of logical device data need information about the transducers on the device (meta data) as well as the data values themselves.
+If the XMPP service is capable of handling pub-sub collections (<link url='http://xmpp.org/extensions/xep-0248.html'><cite>XEP-0248</cite></link>: PubSub Collection Nodes), the node id for the collection node SHOULD be the UUID as defined above.
+The meta data for the device SHOULD be a leaf node child of the collection node with the name "meta" and the data values for the device SHOULD be a leaf node child of the collection node with the name "data".
+</p>
+<p>
+If the XMPP service is not capable of handling pub-sub collections, the node id for the meta data SHOULD be in the form of the UUID followed by "_" followed by (what would be) the leaf child node id.
+Thus, for the meta data, the node id would be UUID_meta and the data value node id would be UUID_data.
+</p>
+<p>For the rest of the document, we will assume that the XMPP service is a basic XEP-0060 compliant service only and use the UUID_??? naming scheme for node id.
+</p>
+
+</section2>
+<section2 topic='Device Metadata' anchor='devicem'>
+Adapter publishes device meta data:
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='heater-capulet@capulet.lit/castle'
+    id='publish1'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b0-4134-11e0-9207-0800200c9a66_meta'>
+      <item id='current'>
+        <device xmlns='http://jabber.org/protocol/sox'
+            name='Royal Thermostat'
+            id='4d4335b0-4134-11e0-9207-0800200c9a66'
+            type='hvac'
+            serialNumber='slave3'>
+          <transducer
+           name='current temperature' id='temp' canActuate='false'
+           hasOwnNode='false' units='kelvin' unitScalar='0'
+           minValue='270' maxValue='320' resolution='0.1'>
+          </transducer>
+          <transducer
+              name='current heating setpoint' id='heat' canActuate='true'
+              hasOwnNode='false' units='kelvin' unitScalar='0'
+              minValue='280' maxValue='300' resolution='0.1'>
+          </transducer>
+          <transducer
+              name='current fan setting' id='fan' canActuate='true'
+	      hasOwnNode='true' units='hertz' unitScalar='3'>
+          </transducer>
+        </device>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+<p>
+If the meta node is configured to include payloads, the subscribers will receive payloads with event notifications:
+</p>
+<code><![CDATA[
+<message
+    to='house-capulet@capulet.lit/castle'
+    from='pubsub.capulet.lit'
+    id='baz1'>
+  <event xmlns='http://jabber.org/protocol/pubsub#event'>
+    <items node='4d4335b0-4134-11e0-9207-0800200c9a66_meta'>
+      <item id='current'>
+        <device xmlns='http://jabber.org/protocol/sox'
+            name='Royal Thermostat'
+            id='4d4335b0-4134-11e0-9207-0800200c9a66'
+            type='hvac'
+            serialNumber='slave3'>
+          <transducer
+              name='current temperature' id='temp' canActuate='false'
+              hasOwnNode='false' units='kelvin' unitScalar='0'
+              minValue='270' maxValue='320' resolution='0.1'>
+          </transducer>
+          <transducer
+              name='current heating setpoint' id='heat' canActuate='true'
+              hasOwnNode='false' units='kelvin' unitScalar='0'
+              minValue='280' maxValue='300' resolution='0.1'>
+          </transducer>
+          <transducer
+              name='current fan setting' id='fan' canActuate='true'
+              hasOwnNode='true' units='hertz' unitScalar='3'
+          </transducer>
+        </device>
+      </item>
+    </items>
+  </event>
+</message>
+]]></code>
+<table caption='Device Attributes'>
+ <tbody>
+  <tr>
+   <th>
+   Attribute
+   </th>
+   <th>
+   Description/Purpose
+   </th>
+  </tr>
+  <tr>
+   <td>
+   name
+   </td>
+   <td>
+   A human friendly name for the device
+   </td>
+  </tr>
+  <tr>
+   <td>
+   id
+   </td>
+   <td>
+   A unique identifier for the logical device. This SHOULD be the UUID that corresponds to the logical device.
+   </td>
+  </tr>
+  <tr>
+   <td>
+   type
+   </td>
+   <td>
+   The type of the transducer platform (see below)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   timestamp
+   </td>
+   <td>
+  Format as defined in
+<link url='http://xmpp.org/extensions/xep-0082.html'><cite>XEP-0082</cite></link>: XMPP Date and Time Profiles.
+   </td>
+  </tr>
+  <tr>
+   <td>
+   description
+   </td>
+   <td>
+   A human friendly description of the device
+   </td>
+  </tr>
+  <tr>
+   <td>
+   serialNumber
+   </td>
+   <td>
+   A serial number or other unique identifier for the physical device
+   </td>
+  </tr>
+ </tbody>
+</table>
+
+<table caption='Transducer Attributes'>
+ <tbody>
+  <tr>
+   <th>
+   Attribute
+   </th>
+   <th>
+   Description/Purpose
+   </th>
+  </tr>
+  <tr>
+   <td>
+   name
+   </td>
+   <td>
+   A human friendly identifier to distinguish between various possible transducers within a device
+   </td>
+  </tr>
+  <tr>
+   <td>
+   id
+   </td>
+   <td>
+   A unique identifier for the transducer used within the XML packet to enumerate different transducers within a single packet
+The tuple (UUID X, transducer id Y) MUST be unique such that a publish operation to a data value node X_data with the transducer id Y unambiguously refers to one and only one transducer.
+   </td>
+  </tr>
+  <tr>
+   <td>
+   units
+   </td>
+   <td>
+   Unit of measure (see below)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   unitScaler
+   </td>
+   <td>
+   The scale of the unit as a power of 10 (i.e. n for 10 ** n)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   canActuate
+   </td>
+   <td>
+   Indicates whether the transducer can be actuated
+   </td>
+  </tr>
+  <tr>
+   <td>
+   hasOwnNode
+   </td>
+   <td>
+   Indicates whether the transducer data has its own node or whether it is part of the generic data value node (see below)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   transducerTypeName
+   </td>
+   <td>
+   A human readable indication of the type of transducer
+   </td>
+  </tr>
+  <tr>
+   <td>
+   manufacturer
+   </td>
+   <td>
+   Manufacturer of the transducer
+   </td>
+  </tr>
+  <tr>
+   <td>
+   partNumber
+   </td>
+   <td>
+   Manufacturer's part number of the transducer
+   </td>
+  </tr>
+  <tr>
+   <td>
+   serialNumber
+   </td>
+   <td>
+   Manufacturer's serial number of the transducer
+   </td>
+  </tr>
+  <tr>
+   <td>
+   minValue
+   </td>
+   <td>
+   The expected minimum value for this transducer
+   </td>
+  </tr>
+  <tr>
+   <td>
+   maxValue
+   </td>
+   <td>
+   The expected maximum value for this transducer
+   </td>
+  </tr>
+  <tr>
+   <td>
+   resolution
+   </td>
+   <td>
+   The resolution of the values reported by this transducer
+   </td>
+  </tr>
+  <tr>
+   <td>
+   precision
+   </td>
+   <td>
+   The precision of the values reported by this transducer
+   </td>
+  </tr>
+  <tr>
+   <td>
+   accuracy
+   </td>
+   <td>
+   The accuracy of the values reported by this transducer
+   </td>
+  </tr>
+ </tbody>
+</table>
+  <section3 topic='Types' anchor='types'>
+  <p>To make it easier for agents to sort through available devices and seonsors, it is desirable for implementations to use a common set of types. The following device types are defined:
+</p>
+<table caption='Device Types'>
+ <tbody>
+  <tr>
+   <th>
+   Type
+   </th>
+   <th>
+   Description/Purpose
+   </th>
+  </tr>
+  <tr>
+   <td>
+   indoor weather
+   </td>
+   <td>
+   Temperature, humidity, etc sensors located indoors (such as in a building)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   outdoor weather
+   </td>
+   <td>
+   Temperature, humidity, etc sensors located outdoors (such as a rooftop)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   hvac
+   </td>
+   <td>
+   Sensors and controls associated with a Heating, Ventilating and Air Conditioning (HVAC) system
+   </td>
+  </tr>
+  <tr>
+   <td>
+   occupancy
+   </td>
+   <td>
+   Sensors and controls associated with occupants (motion sensors, door locks, light switches, etc)
+   </td>
+  </tr>
+  <tr>
+   <td>
+  multimedia input 
+   </td>
+   <td>
+   Sensors and controls associated with multimedia input (video camera, microphone, etc)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   multimedia output
+   </td>
+   <td>
+   Sensors and controls associated with multimedia output (screen, speakers, etc)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   scale
+   </td>
+   <td>
+   Sensors and controls associated with measuring weight or mass
+   </td>
+  </tr>
+  <tr>
+   <td>
+   vehicle
+   </td>
+   <td>
+   Sensors and controls associated with a vehicle (car, boat, truck, etc)
+   </td>
+  </tr>
+  <tr>
+   <td>
+   resource consumption
+   </td>
+   <td>
+   Sensors and controls associated with electricity, gas, water or other resource consumption
+   </td>
+  </tr>
+  <tr>
+   <td>
+   resource generation
+   </td>
+   <td>
+   Sensors and controls associated with electricity, gas, water or other resource generation
+   </td>
+  </tr>
+  <tr>
+   <td>
+   other
+   </td>
+   <td>
+   Other type that isn't listed above
+   </td>
+  </tr>
+ </tbody>
+</table>
+  </section3>
+  <section3 topic='Units' anchor='units'>
+  <p>For the sake of interoperability, implementations SHOULD transform native sensor units into the closest relevant SI form. SI units are defined based on 
+SI conventions as shown in the <link url='http://aurora.regenstrief.org/~ucum/ucum.html'>The Unified Code For Units of Measurement</link>.
+</p>
+<p>
+After specifying the units of the transducer device, you can then also specify an SI scalar value as powers of 10.  The following example shows how to specify a sensor in centimeters. 
+<code><![CDATA[
+<device id='01020301' type='other'>
+  <transducer name='inchworm movement' id='0001'
+      canActuate='false' units='meter' unitScaler='-2'/>
+</device>
+]]></code>
+
+The following example shows how to specify a sensor in kilograms. 
+<code><![CDATA[
+<device id='xyzzy' type='scale'>
+  <transducer name='bathroom scale' id='0001'
+      canActuate='false' units='gram' unitScaler='3'/>
+</device>
+]]></code>
+
+The following example shows how to specify a sensor in kilowatt-second with a resolution to the nearest 0.1 kWh.
+<code><![CDATA[
+<device id='windmill087' type='resource generation'>
+  <transducer name='home wind generator' id='0001'
+      canActuate='false'
+      units='watt second' unitScaler='3'
+      minValue='-50000' maxValue='0' resolution='0.1'/>
+</device>
+]]></code>
+
+If no unitScaler value is specified, then a unitScaler of 0 (aka 10**0 = 1) is assumed.
+  </p>
+</section3>
+</section2>
+<section2 topic='Transducer Values' anchor='transducervalues'>
+Values for a transducer are published via the data value node:
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='heater-capulet@capulet.lit/castle'
+    id='publish2'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b0-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='temp'
+              typedValue='293.2'
+              timestamp='2011-02-25T17:13:20Z'/>
+          <transducerValue
+              id='heat'
+              typedValue='295.4'
+              timestamp='2011-02-25T17:13:20Z'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+<p>
+If the data value node is configured to include payloads, the subscribers will receive payloads with event notifications:
+</p>
+<code><![CDATA[
+<message
+    to='house-capulet@capulet.lit/castle'
+    from='pubsub.capulet.lit'
+    id='baz2'>
+  <event xmlns='http://jabber.org/protocol/pubsub#event'>
+    <items node='4d4335b0-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='temp'
+              typedValue='293.2'
+              timestamp='2011-02-25T17:13:20Z'/>
+          <transducerValue
+              id='heat'
+              typedValue='295.4'
+              timestamp='2011-02-25T17:13:20Z'/>
+        </data>
+      </item>
+    </items>
+  </event>
+</message>
+]]></code>
+<table caption='Transducer Value Attributes'>
+ <tbody>
+  <tr>
+   <th>
+   Attribute
+   </th>
+   <th>
+   Description/Purpose
+   </th>
+  </tr>
+  <tr>
+   <td>
+   id
+   </td>
+   <td>
+   The transducer id.
+This MUST correspond to a transducer Id as defined in the transducer packet.
+The tuple (UUID X, transducer id Y) MUST be unique such that a publish operation to a data value node X_data with the transducer id Y unambiguously refers to one and only one transducer.
+   </td>
+  </tr>
+  <tr>
+   <td>
+   typedValue
+   </td>
+   <td>
+   The value representing the transducer data which is in the units as defined in the transducer units attribute
+   </td>
+  </tr>
+  <tr>
+   <td>
+   timestamp
+   </td>
+   <td>
+  Format as defined in
+<link url='http://xmpp.org/extensions/xep-0082.html'><cite>XEP-0082</cite></link>: XMPP Date and Time Profiles.
+   </td>
+  </tr>
+  <tr>
+   <td>
+   rawValue
+   </td>
+   <td>
+   The raw value as seen by the transducer. The rawValue can be used to record a non-unit converted value for record keeping (e.g. a raw ADC value before calibration).
+   </td>
+  </tr>
+ </tbody>
+</table>
+<p>OPTIONAL: Instead of putting all of the transducer values into a single data value node, an adapter MAY want to  break up the transducer values into multiple nodes.
+For example, an adapter may want to do this for reasons of security (allow some entities to subscribe/publish to transducer Y1 and a different set of entities to subscribe/publish to transducer Y2).
+</p>
+<p>
+As mentioned earlier, if the XMPP service is capable of handling pub-sub collections (<link url='http://xmpp.org/extensions/xep-0248.html'><cite>XEP-0248</cite></link>: PubSub Collection Nodes), the node id for the collection node SHOULD be the UUID and the leaf child node SHOULD have the same node id as the transducer id listed in the meta node.
+</p>
+<p>
+If the XMPP service is not capable of handling pub-sub collections, adapters which want to create nodes for individual transducers SHOULD use a node id of the form X_Y where X is the UUID for the device and Y is the transducer id as listed in the UUID_meta node.
+</p>
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='heater-capulet@capulet.lit/castle'
+    id='publish3'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b0-4134-11e0-9207-0800200c9a66_fan'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='fan'
+              typedValue='1.1'
+              timestamp='2011-02-25T18:13:20Z'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+<p>
+If the fan node is configured to include payloads, the subscribers will receive payloads with event notifications:
+</p>
+<code><![CDATA[
+<message
+    to='juliet@capulet.lit/balcony'
+    from='pubsub.capulet.lit'
+    id='baz3'>
+  <event xmlns='http://jabber.org/protocol/pubsub#event'>
+    <items node='4d4335b0-4134-11e0-9207-0800200c9a66_fan'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='fan'
+              typedValue='1.1'
+              timestamp='2011-02-25T18:13:20Z'/>
+        </data>
+      </item>
+    </items>
+  </event>
+</message>
+]]></code>
+<p>
+If an adapter chooses to put the transducer value in its own node, it MUST indicate this in the meta node via the Transducer's hasOwnNode field.
+</p>
+<p>NOTE: For every transducer listed in the UUID_meta node, the transducer value MUST be provided in either the UUID_data node or its own UUID_TransducerId node, but not both.
+The information in the meta node is used by consumers to determine which node they should subscribe to in order to be notified when new data is available for their chosen transducer.
+</p>
+</section2>
+<section2 topic='Setting Transducer Values' anchor='transducerset'>
+Values for a transducer can also be set by publishing to the data value node.
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='house-capulet@capulet.lit/castle'
+    id='publish5'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b0-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerSetValue
+              id='heat'
+              typedValue='296.2'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+<p>
+If the data value node is configured to include payloads, the subscribers will receive payloads with event notifications:
+</p>
+<code><![CDATA[
+<message
+    to='heater-capulet@capulet.lit/balcony'
+    from='pubsub.capulet.lit'
+    id='baz5'>
+  <event xmlns='http://jabber.org/protocol/pubsub#event'>
+    <items node='4d4335b0-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerSetValue
+              id='heat'
+              typedValue='296.2'/>
+        </data>
+      </item>
+    </items>
+  </event>
+</message>
+]]></code>
+<p>Per the optional note above, if a transducer has the "hasOwnNode" attribute set in the UUID_meta node, then the value set (transducerSetValue) would be done via the UUID_TransducerId node as described above.
+</p>
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='juliet@capulet.lit/balcony'
+    id='publish6'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b0-4134-11e0-9207-0800200c9a66_fan'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerSetValue
+              id='fan'
+              typedValue='0'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+<p>
+If the fan node is configured to include payloads, the subscribers will receive payloads with event notifications:
+</p>
+<code><![CDATA[
+<message
+    to='heater-capulet@capulet.lit/balcony'
+    from='pubsub.capulet.lit'
+    id='baz6'>
+  <event xmlns='http://jabber.org/protocol/pubsub#event'>
+    <items node='4d4335b0-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerSetValue
+              id='fan'
+              typedValue='0'/>
+        </data>
+      </item>
+    </items>
+  </event>
+</message>
+]]></code>
+<table caption='Transducer Set Attributes'>
+ <tbody>
+  <tr>
+   <th>
+   Attribute
+   </th>
+   <th>
+   Description/Purpose
+   </th>
+  </tr>
+  <tr>
+   <td>
+   id
+   </td>
+   <td>
+   The transducer id.
+This MUST correspond to a transducer id as defined in the transducer packet.
+The tuple (UUID X, transducer id Y) MUST be unique such that a publish operation to a data value node X_data with the transducer id Y unambiguously refers to one and only one transducer.
+   </td>
+  </tr>
+  <tr>
+   <td>
+   typedValue
+   </td>
+   <td>
+   The value representing the transducer data which is in the units as defined in the transducer units attribute.
+   </td>
+  </tr>
+  <tr>
+   <td>
+   rawValue
+   </td>
+   <td>
+   The raw value to be passed to the transducer.
+If the adapter can verify that the raw value is an allowable value for the transducer, it SHOULD allow the raw value to take precedence over the typedValue when provided.
+   </td>
+  </tr>
+ </tbody>
+</table>
+  <section2 topic='Actuation' anchor='actuation'>
+  <p> Actuation takes place as a split-phase operation with an action signal (publish) followed by a completion callback (subscribed message).
+First, adapters that support actuators are required to subscribe to their respective actuator nodes.
+An agent can publish an actuation request to the node which is then translated by the adapter into a native command for the actuator.
+Once the actuator operation has completed its transaction, a new state value is published back to its node.
+This last step allows an interested agent to subscribe to this node to confirm the requested action has completed.
+</p>
+<p>
+There is the possibility of contention if multiple users attempt to actuate the same device.
+This arbitration SHOULD happen at a higher control layer.
+Any interested agent can always verify the latest state of the actuator by subscribing to the actuator's node.
+ </p> 
+</section2>
+</section2>
+</section1>
+
+<section1 topic='Use Cases' anchor='usecases'>
+<p>
+The use cases below show examples of the publish side of this protocol.
+Event notifications, errors, etc. are all described in XEP-0060 and are not included in the examples below.
+</p>
+  <section2 topic='Data Logging' anchor='dataloggingrevisited'>
+<p>A data logging agent does not need to create or publish any nodes.
+Instead, it would use the XMPP pub/sub disco# ability to list available nodes and contact the admin entity to subscribe to nodes of interest.
+Once subscribed, it can log events, populate an external database (such as MySQL) to allow access to historical information regarding sensors and actuators, provide external notifications based on particular events, etc.
+Since the mechanism for setting a transducer uses the same pubsub node as showing the transducer's value, logging style entities can also do auditing, independant validation that a device is responding, timing of acutator set/response, etc.
+</p>
+  </section2>
+  <section2 topic='Home Energy' anchor='homeenergyrevisited'>
+<p>Lady Capulet has purchased an energy monitoring device for use in her home.
+The sensor used is accurate to the nearest 10 Wh.
+</p>
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='heater-capulet@capulet.lit/castle'
+    id='publish10'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335ba-4134-11e0-9207-0800200c9a66_meta'>
+      <item id='current'>
+        <device xmlns='http://jabber.org/protocol/sox'
+            name='Home energy usage'
+            id='4d4335ba-4134-11e0-9207-0800200c9a66'
+            type='resource consumption'
+            serialNumber='8341gvhv5w9'
+          <transducer
+              name='house clamps' id='0001' canActuate='false'
+              units='watt second' unitScaler='3'
+              minValue='0' maxValue='100' resolution='0.01'/>
+        </device>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='heater-capulet@capulet.lit/castle'
+    id='publish11'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335ba-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='0001'
+              typedValue='0.44'
+              timestamp='2011-01-25T17:13:20Z'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+
+<p>Later, Lady Capulet adds a second energy sensor to the monitoring device purchased above.
+The new sensor is more accurate and can measure to the nearest 1 Wh.
+The adapter provides this additional information in the meta node and data value node.
+</p>
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='heater-capulet@capulet.lit/castle'
+    id='publish20'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335ba-4134-11e0-9207-0800200c9a66_meta'>
+      <item id='current'>
+        <device xmlns='http://jabber.org/protocol/sox'
+            name='Home energy usage'
+            id='4d4335ba-4134-11e0-9207-0800200c9a66'
+            type='resource consumption'
+            serialNumber='8341gvhv5w9'
+          <transducer
+              name='house clamps' id='0001' canActuate='false'
+              units='watt second' unitScaler='3'>
+              minValue='0' maxValue='100' resolution='0.01'/>
+          <transducer
+              name='pool clamps' id='0002' canActuate='false'
+              units='watt second' unitScaler='3'
+              minValue='0' maxValue='100' resolution='0.001'/>
+        </device>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='heater-capulet@capulet.lit/castle'
+    id='publish21'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335ba-4134-11e0-9207-0800200c9a66_meta'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='0001'
+              typedValue='0.39'
+              timestamp='2011-02-26T17:13:20Z'/>
+          <transducerValue
+              id='0002'
+              typedValue='1.041'
+              timestamp='2011-02-26T17:13:24Z'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+  </section2>
+
+  <section2 topic='Web Camera' anchor='webcamerarevisited'>
+<p>Lord Montague purchases a web camera which can sense movement and has a light which can be turned on or off.
+He also has an agent which responds to the camera motion detector by turning on the camera light in the hopes of catching Romeo sneaking out at night.
+For security reasons, it is desired to allow an agent to publish to the
+light (i.e. control the light), but not the motion sensor.
+To provide for this,
+the adapter implements the OPTIONAL ability that allows a transducer value to have its own node.
+</p>
+
+<code><![CDATA[
+
+<iq type='set' 
+    to='pubsub.montague.lit'
+    from='camera-montague@montague.lit/moat'
+    id='publish40'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b5-4134-11e0-9207-0800200c9a66_meta'>
+      <item id='current'>
+        <device xmlns='http://jabber.org/protocol/sox'
+         name='Moat Cam'
+         id='4d4335b5-4134-11e0-9207-0800200c9a66'
+         type='multimedia input'
+         serialNumber='axis-m1301-w-0041142CA2'
+          <transducer
+              name='motion sensor' id='tid1' canActuate='false' units='enum'
+              minValue='0' maxValue='1'/>
+          <transducer
+              name='light' id='tid2' canActuate='true' units='enum'
+              hasOwnNode='true' minValue='0' maxValue='1'/>
+          <property name='adminUrl'
+              value='http://example.com/view/viewer_index.shtml'/>
+          <property name='videoUrl'
+              value='rtsp://example.com/axis-media/media.amp'/>
+        </device>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+
+<iq type='set' 
+    to='pubsub.montague.lit'
+    from='camera-montague@montague.lit/moat'
+    id='publish41'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b5-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='tid1'
+              typedValue='0'
+              timestamp='2011-01-25T17:13:19'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+
+<iq type='set' 
+    to='pubsub.montague.lit'
+    from='camera-montague@montague.lit/moat'
+    id='publish42'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b5-4134-11e0-9207-0800200c9a66_tid2'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='tid2'
+              typedValue='0'
+              timestamp='2011-01-25T17:13:19.607Z'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+
+<p>When there is movement, the following would be published by the camera adapter.
+</p>
+
+<code><![CDATA[
+Event Node ID: 4d4335b5-4134-11e0-9207-0800200c9a66_data
+<iq type='set' 
+    to='pubsub.montague.lit'
+    from='camera-montague@montague.lit/moat'
+    id='publish43'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b5-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='tid1'
+              typedValue='1'
+              timestamp='2011-01-25T20:13:20.314Z'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+
+<p>Two things to note:
+<ol>
+<li>The tuple ('4d4335b5-4134-11e0-9207-0800200c9a66_data', 'tid1') uniquely identifies the motion sensor for this camera adapter.</li>
+<li>It is not relevant to the subscriber of this node (the consumer of information) whether the camera has motion detection built in or whether the adapter is capturing images from the camera and using its own methodology for determining motion.</li>
+</ol>
+</p>
+<p>
+To continue this example further, let's assume an agent is subscribed to the data value node and can also publish to the tid2 node which controls the light.
+In this case, an agent will receive notification that movement was sensed and can take action.
+One action could be to turn on the light, in which case the agent would publish:
+</p>
+
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.montague.lit'
+    from='watcher-montague@montague.lit/agent99'
+    id='publish44'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b5-4134-11e0-9207-0800200c9a66_tid2'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerSetValue
+              id='tid2'
+              typedValue='1'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+
+<p>
+In response, the camera adapter would turn on the light and publish an acknowledgement.
+</p>
+
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.montague.lit'
+    from='camera-montague@montague.lit/moat'
+    id='publish45'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b5-4134-11e0-9207-0800200c9a66_tid2'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='tid2'
+              typedValue='1'
+              timestamp='2011-01-25T17:13:21Z'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+
+<p>
+In response to this the agent could start recording the video, send an email, use the <link url='http://www.xmpp.org/extensions/xep-0166.html'><cite>XEP-0166</cite></link> (Jingle) extension to send the video to an XMPP client, etc.
+</p>
+  </section2>
+
+  <section2 topic='Vehicle Information' anchor='vehicleinformationrevisited'>
+<p>Juliet purchases a smartphone and connects it to the diagnostic bus of her chariot. She is interested in capturing real time information regarding the chariot's location and performance.
+The smartphone is providing some of the data (accelerometer and GPS) while the chariot diagnostic bus is providing the rest (horsepower, engine information, etc).
+</p>
+<p>
+Note: it is not relevant to the consumers of the data which sensors are connected to the smartphone and which are not.
+Consumers only need to know the UUID for the chariot adapter's logical device and the corresponding transducer id's to access the specific transducer data by subscribing to the node(s) of interest.
+The chariot adapter (potentially running on the smart phone) hides the details of data acquisition.
+</p>
+<p>
+Note: normally engine information is provided as rotations per minute (rpm), but the "on-wire" format should use the base units provided above - in this case hertz is a measure of cycles (or rotations) per second.
+Thus, the adapter would be required to convert rpm into hertz (i.e. multiply the rpm value by 60 to get hertz) before publishing and an agent could optionally convert the value back to rpm for display.
+</p>
+
+<code><![CDATA[
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='chariot-capulet@capulet.lit/convertible'
+    id='publish50'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b6-4134-11e0-9207-0800200c9a66_meta'>
+      <item id='current'>
+        <device xmlns='http://jabber.org/protocol/sox'
+            name='Chariot built for two'
+            id='4d4335b6-4134-11e0-9207-0800200c9a66'
+            type='vehicle'
+            timestamp='2011-01-25T17:03:00Z'>
+            serialNumber='license: HI 2ABC123'
+          <transducer name='motion X' id='01' canActuate='false'
+              units='meter per seconf squared'/>
+          <transducer name='motion Y' id='02' canActuate='false'
+              units='meter per seconf squared'/>
+          <transducer name='motion Z' id='03' canActuate='false'
+              units='meter per seconf squared'/>
+          <transducer name='GPS lat' id='04' canActuate='false'
+              units='lat'/>
+          <transducer name='GPS lng' id='05' canActuate='false'
+              units='lon'/>
+          <transducer name='engine rotation' id='06' canActuate='false'
+              units='hertz'/>
+          <transducer name='timing advance' id='07' canActuate='true'
+              units='radian'/>
+          <transducer name='engine fuel' id='08' canActuate='false'
+              units='liter'/>
+          <transducer name='engine fuel pressure' id='09' canActuate='true'
+              units='pascal'/>
+          <transducer name='engine coolant' id='10' canActuate='false'
+              units='kelvin'/>
+        </device>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+
+<iq type='set' 
+    to='pubsub.capulet.lit'
+    from='chariot-capulet@capulet.lit/convertible'
+    id='publish51'>
+  <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+    <publish node='4d4335b6-4134-11e0-9207-0800200c9a66_data'>
+      <item id='current'>
+        <data xmlns='http://jabber.org/protocol/sox'>
+          <transducerValue
+              id='1'
+              typedValue='8.7'
+              timestamp='2011-01-25T17:13:20Z'/>
+          <transducerValue
+              id='2'
+              typedValue='8.1'
+              timestamp='2011-01-25T17:13:20Z'/>
+          <transducerValue
+              id='3'
+              typedValue='9.1'
+              timestamp='2011-01-25T17:13:20Z'/>
+        </data>
+      </item>
+    </publish>
+  </pubsub>
+</iq>
+]]></code>
+
+<p>Since the timestamp indicates the time of data collection, the adapter could store some of the sensor values and then batch publish the values to the data value node.
+Consumers of the data value node information would get delayed results (increased latency), but this mechanism may provide for improved bandwidth (fewer pub/sub notification overhead for each "unit" of data).</p>
+<p>
+NOTE: It is permissible to publish a subset of transducers in the data value node (such as in this example).
+If an adapter chooses to publish a subset of transducer data (for example, only
+the changed values), it is possible for consumers who are off line or recently
+activated to miss older values.
+There are a variety of ways to handle this depending on the needs of the
+implementor including (but not limited to):
+<ul>
+<li>
+Increase the history size of the node in the xmpp server so old entries can be obtained
+</li>
+<li>
+Have the adapter periodicly update all values in the data value node
+</li>
+<li>
+Put infrequent events in their own nodes and use data value node for frequent events
+</li>
+<li>
+Put frequent events in their own nodes and use data value node for infrequent events
+</li>
+</ul>
+If an implementaion chooses to put some transducers values into their own nodes
+(instead of putting them all into the data value node), remember that a transducer value MUST appear in either the data value node or its own node, but not both.
+The meta node indicates to consumers which node they should subscribe to in order to be notified when new data is available for their chosen transducer.
+</p>
+<p>One could carry this further to allow Lord Capulet to keep track of all the chariots in his fleet.
+For example, the logging agent described above could be used to keep historical information (including location and performance) for all of the vehicles in his fleet.
+We will leave it as an exercise for the reader to ponder the implications of allowing chariot transducers to be modified on the fly via non-local agents.</p>
+</section2>
+
+  <section2 topic='All of the above' anchor='allrevisited'>
+<p>Whether or not additional nodes are needed depends on how the information is combined.
+For example, an adapter could be written to compute the distance a vehicle is from a particular point and the result could be a published to a new node that other adapters and agents could use in their calculations.</p>
+  </section2>
+</section1>
+
+<section1 topic='Internationalization Considerations' anchor='i18n'>
+  <section2 topic='Field Labels' anchor='fli18n'>
+  <p>The Data Forms shown in this specification include English-language labels for various fields; implementations that will display such forms to human users SHOULD provide localized label text for fields that are defined for the registered FORM_TYPEs.</p>
+  </section2>
+</section1>
+<section1 topic='Security Considerations' anchor='security'>
+<p>
+The publication of sensor information is not known to introduce any new security considerations above and beyond those defined in
+<link url='http://www.xmpp.org/extensions/xep-0060.html'><cite>XEP-0060</cite></link> and <link url='http://tools.ietf.org/html/rfc3920'><cite>XMPP Core</cite></link>.
+</p>
+</section1>
+<section1 topic='IANA Considerations' anchor='iana'>
+  <p>This document does not require interaction with &IANA;.</p>
+</section1>
+<section1 topic='XMPP Registrar Considerations' anchor='registrar'>
+  <section2 topic='Protocol Namespaces' anchor='registrar-ns'>
+    <p>The &REGISTRAR; includes "http://jabber.org/protocol/pubsub" and "http://jabber.org/protocol/pubsub#errors" and "http://jabber.org/protocol/pubsub#event" and "http://jabber.org/protocol/pubsub#owner" in its registry of protocol namespaces.</p>
+  </section2>
+</section1>
+<section1 topic='XML Schema' anchor='schema'>
+<section2 topic='http://jabber.org/protocol/sox' anchor='protosox'>
+<code><![CDATA[
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema
+    xmlns:xs='http://www.w3.org/2001/XMLSchema'
+    targetNamespace='http://jabber.org/protocol/sox'
+    xmlns='http://jabber.org/protocol/sox'
+    elementFormDefault='qualified'>
+
+  <xs:annotation>
+    <xs:documentation>
+      The protocol documented by this schema is defined in
+      XEP-????: http://xmpp.org/extensions/xep-????.html
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name='device'>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs='0' maxOccurs='unbounded' ref='transducer'/>
+        <xs:element minOccurs='0' maxOccurs='unbounded' ref='unit'/>
+        <xs:element minOccurs='0' maxOccurs='unbounded' ref='property'/>
+      </xs:sequence>
+      <xs:attribute ref='geoloc' xmlns='http://jabber.org/protocol/geoloc'/>
+      <xs:attribute name='type' type='xs:string' use='optional'/>
+      <xs:attribute name='timestamp' type='xs:datetime' use='optional'/>
+      <xs:attribute name='serialNumber' type='xs:string' use='optional'/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name='transducer'>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs='0' maxOccurs='1'
+            ref='geoloc' xmlns='http://jabber.org/protocol/geoloc'/>
+        <xs:element minOccurs='0' maxOccurs='unbounded' ref='property'/>
+        <xs:element minOccurs='0' maxOccurs='unbounded' ref='unit'/>
+      </xs:sequence>
+      <xs:attribute name='name' type='xs:string' use='required'/>
+      <xs:attribute name='unit' ref='unit' use='required'/>
+      <xs:attribute name='unitScaler' type='xs:integer' default='0'/>
+      <xs:attribute name='transducerType' type='xs:string' use='optional'/>
+      <xs:attribute name='manufacturer' type='xs:string' use='optional'/>
+      <xs:attribute name='serialNumber' type='xs:string' use='optional'/>
+    </xs:complexType>
+  </xs:element> 
+
+  <xs:element name='unit'>
+    <xs:complexType>
+        <xs:attribute name='interface' type='xs:string' use='optional'/>
+        <xs:attribute name='units' ref='allowedUnits' use='required' />
+        <xs:sequence>
+            <xs:strings minOccurs='0' ref='xs:string'>
+        </xs:sequence>
+        <xs:attribute name='minValue' type='xs:float' use='optional'/>
+        <xs:attribute name='maxValue' type='xs:float' use='optional'/>
+        <xs:attribute name='resolution' type='xs:float' use='optional'/>
+        <xs:attribute name='precision' type='xs:float' use='optional'/>
+        <xs:attribute name='accuracy' type='xs:float' use='optional'/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name='allowedUnits'>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value='meter'/>
+      <xs:enumeration value='gram'/>
+      <xs:enumeration value='second'/>
+      <xs:enumeration value='ampere'/>
+      <xs:enumeration value='kelvin'/>
+      <xs:enumeration value='mole'/>
+      <xs:enumeration value='candela'/>
+      <xs:enumeration value='radian'/>
+      <xs:enumeration value='steradian'/>
+      <xs:enumeration value='hertz'/>
+      <xs:enumeration value='newton'/>
+      <xs:enumeration value='pascal'/>
+      <xs:enumeration value='joule'/>
+      <xs:enumeration value='watt'/>
+      <xs:enumeration value='coulomb'/>
+      <xs:enumeration value='volt'/>
+      <xs:enumeration value='farad'/>
+      <xs:enumeration value='ohm'/>
+      <xs:enumeration value='siemens'/>
+      <xs:enumeration value='weber'/>
+      <xs:enumeration value='tesla'/>
+      <xs:enumeration value='henry'/>
+      <xs:enumeration value='lumen'/>
+      <xs:enumeration value='lux'/>
+      <xs:enumeration value='becquerel'/>
+      <xs:enumeration value='gray'/>
+      <xs:enumeration value='sievert'/>
+      <xs:enumeration value='katal'/>
+      <xs:enumeration value='liter'/>
+      <xs:enumeration value='square meter'/>
+      <xs:enumeration value='cubic meter'/>
+      <xs:enumeration value='meter per second'/>
+      <xs:enumeration value='meter per second squared'/>
+      <xs:enumeration value='reciprocal meter'/>
+      <xs:enumeration value='kilogram per cubic meter'/>
+      <xs:enumeration value='cubic meter per kilogram'/>
+      <xs:enumeration value='ampere per square meter'/>
+      <xs:enumeration value='ampere per meter'/>
+      <xs:enumeration value='mole per cubic meter'/>
+      <xs:enumeration value='candela per square meter'/>
+      <xs:enumeration value='kilogram per kilogram'/>
+      <xs:enumeration value='volt-ampere reactive'/>
+      <xs:enumeration value='volt-ampere'/>
+      <xs:enumeration value='watt second'/>
+      <xs:enumeration value='percent'/>
+      <xs:enumeration value='enum'/>
+      <xs:enumeration value='lat'/>
+      <xs:enumeration value='lon'/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name='property'>
+    <xs:complexType>
+      <xs:attribute name='name' type='xs:string' use='required'/>
+      <xs:attribute name='value' type='xs:string' use='required'/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name='data'>
+    <xs:complexType>
+      <xs:sequence>
+          <xs:attribute name='name' type='xs:string' use='required'/>
+          <xs:attribute name='typedValue' type='xs:string' use='required'/>
+          <xs:attribute name='timestamp' type='xs:datetime' use='optional'/>
+          <xs:attribute name='rawValue' type='xs:string' use='optional'/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+</xs:schema>
+  ]]></code>
+</section2>
+</section1>
+</xep>

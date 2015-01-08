@@ -1,0 +1,56 @@
+/*
+ * s2sim.h
+ *
+ *  Created on: Sep 30, 2014
+ *      Author: dermeister
+ */
+
+#ifndef S2SIM_H_
+#define S2SIM_H_
+
+#define RCVBUFSIZE 128   /* Size of receive buffer */
+
+#define S2SIM_OK											0
+#define S2SIM_ERROR											-1
+
+#define S2SIM_MESSAGE_START 								0x12345678
+#define S2SIM_MESSAGE_END									0xFEDCBA98
+
+#define S2SIM_MESSAGE_TYPE_CONN_CONTROL						0X0001
+#define S2SIM_MESSAGE_ID_ASYNC_CLIENT_RESPONSE				0x0002
+#define S2SIM_MESSAGE_ID_ASYNC_CLIENT_DATA					0x0003
+#define S2SIM_MESSAGE_ID_SYNC_CLIENT_CONN_REQUEST			0x0004
+#define S2SIM_MESSAGE_ID_SYNC_CLIENT_CONN_RESPONSE			0x0005
+#define S2SIM_MESSAGE_ID_SYSTEM_TIME_PROMPT					0x0006
+#define S2SIM_MESSAGE_ID_SYSTEM_TIME_RESPONSE				0x0007
+#define S2SIM_MESSAGE_ID_SYSTEM_VERSION_PROMPT				0x0008
+#define S2SIM_MESSAGE_ID_SYSTEM_VERSION_RESPONSE			0x0009
+#define S2SIM_MESSAGE_ID_REGULATION_CLIENT_REGISTER_REQUEST	0x000A
+
+#define S2SIM_MESSAGE_TYPE_AUTO_REPEAT_REQUEST_CONTROL		0x0002
+
+#define S2SIM_MESSAGE_TYPE_PRICE_SIGNALING					0x0003
+#define S2SIM_MESSAGE_ID_GET_PRICE							0x0001
+#define S2SIM_MESSAGE_ID_SET_CURRENT_PRICE					0x0002
+#define S2SIM_MESSAGE_ID_PRICE_PROPOSAL						0x0003
+#define S2SIM_MESSAGE_ID_DEMAND_NEGOTIATION					0x0004
+#define S2SIM_MESSAGE_ID_SYNC_CLIENT_DATA					0x0005
+#define S2SIM_MESSAGE_ID_SYNC_CLIENT_EXT_MESSAGE			0x0006
+#define S2SIM_MESSAGE_ID_SET_PRICE_AND_REGULATION			0x0007
+
+#define S2SIM_ADDRESS										0x0000
+#define S2SIM_NEW_CLIENT									0xFFFF
+
+typedef struct s2sim_message{
+	int sender_id;
+	int receiver_id;
+	int seq;
+	int message_type;
+	int message_id;
+	int message_length;
+	char* message_data;
+}s2sim_message_t;
+
+
+
+#endif /* S2SIM_H_ */

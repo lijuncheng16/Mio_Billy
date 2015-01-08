@@ -1,0 +1,23 @@
+INSTALL BEFORE BUILDING:
+
+   SleekXMPP library for Python
+   (http://github.com/fritzy/SleekXMPP/zipball/develop)
+
+BUILDING:
+
+   NOTE: json-cpp-build.sh assumes that "platform=linux-gcc".
+   Script should work unmodified in Linux and OS X.
+
+   $ cd bt_datastore/
+   $ ./json-cpp-build.sh
+   $ make
+   $ cd ../
+
+RUNNING:
+
+   Uncomment third line of start-store.sh and edit with your XMPP login info.
+
+   $ ./start-store.sh
+
+   This starts the store agent and tile server inside the screen utility.
+   Browse to 'http://localhost:4720' to view data stored in the store.kvs/ directory.

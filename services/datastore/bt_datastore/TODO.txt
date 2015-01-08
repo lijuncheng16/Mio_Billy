@@ -1,0 +1,16 @@
+add tile summaries:
+  min time, max time, min val, max val
+return tile summaries
+
+DONE test variance
+DONE fix variance
+DONE test strings
+DONE figure out string summarization
+DONE check on multiple simultaneous writes
+
+PDR receiver
+
+
+
+DONE show zero time and how it changes with RTC records
+

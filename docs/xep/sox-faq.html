@@ -1,0 +1,257 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.or
+g/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>SOX FAQ</title>
+</head>
+<body>
+<font size="10">
+<p>
+SOX FAQ - Frequenly Asked Questions...
+</p>
+</font>
+<hr/>
+<ol>
+<li>
+What is SOX?<br/>
+<p>
+SOX (Sensor Over XMPP) is an XML based payload specification that allows
+sensors and actuators (data producers) to provide information to
+agents (data consumers) via
+<a href="http://xmpp.org/">XMPP</a>'s
+publish-subscribe extension
+(<a href="http://xmpp.org/extensions/xep-0060.html">XEP-0060</a>).
+</p>
+</li>
+<li>
+Why did you create SOX?<br/>
+<p>
+There are a growing number of Internet connected devices that sense
+and actuate physical elements in the environment.
+A variety of applications exist that would benefit from sharing
+information between these types of devices.
+</p>
+</li>
+<li>
+Why use eXtensible Messaging and Presence Protocol
+(<a href="http://xmpp.org/">XMPP</a>)?<br/>
+<p>
+XMPP provides an easy-to-use, decentralized and secure communication
+mechanism that is ideal for supporting these types of sensing and
+control applications at scale.
+</p>
+</li>
+<li>
+OK, but why use the pubsub extension
+(<a href="http://xmpp.org/extensions/xep-0060.html">XEP-0060</a>)?<br/>
+<p>
+The “publish-subscribe” design philosophy is very well suited for
+interfacing with sensor and actuator systems for the following reasons.
+First, subscription-based data dissemination shelters
+resource-constrained devices from external requests.
+In many cases, a transducer exists at the leaf-node of a system that
+is resource constrained (i.e. a temperature sensor as part of a
+BACnet network) and could not practically push or reply to tens or
+hundreds of data requests.
+Second, presence information as well as push-based asynchronous
+distribution of data helps decouple timing requirements between data
+producers and consumers.
+Devices can easily declare that they are active and then push data to
+subscribers at their preferred rate.
+Finally, XMPP’s provides decentralized addressing, authentication,
+encrypted communication as well as per-node access control for these
+devices.
+With the addition of a common messaging schema, this provides an ideal
+platform for the sharing of sensor data.
+</p>
+</li>
+<li>
+So how does it work?<br/>
+<p>
+In the case of sensing, a transducer (e.g., a temperature sensor,
+a power meter) is interfacing with an internet-enabled device
+(e.g., a smart phone, a computer) through a software entity
+running on this device, that is able to collect measurements
+from the transducer, perform some local processing and publish a
+value of interest to a pre-specified XMPP event node.
+We refer to this piece of software as the adapter.
+At the other end of the communication channel, software agents that
+are subscribed (and have proper access) to this event node will
+receive the pushed message and, given that it is using a common schema,
+will be able to parse it and process the data however they choose to.
+</p>
+</li>
+<li>
+That's fine for sensors, but what about actuators?<br/>
+<p>
+For actuation, a similar process is followed. A transducer, in this case
+an actuator, is interfacing with an internet-enabled device
+running an adapter.
+This adapter is able to communicate with both the XMPP server
+and the actuator.
+An XMPP event node is used to communicate the actuation commands
+as well as the state of the actuator.
+By default, the adapter will be subscribed to this event node.
+When an actuation message is published to the event node,
+the adapter will receive the message, parse it,
+and issue the appropriate actuation command.
+The resulting state of the transducer or controlled element
+after this actuation will then be published back to the same event
+node by the adapter.
+In this way, the software agent that originally issued the actuation
+command can receive an acknolwedgement through the same XMPP event node.
+</p>
+</li>
+<li>
+Sounds complicated.<br/>
+<p>
+Not really. Basically SOX is just following the sematics of pubsub and
+defining a data format so that publishers and subscribers can
+understand one another.
+</li>
+<li>
+Wait, this sounds like device drivers.
+Are you creating device drivers for the
+<a href="http://en.wikipedia.org/wiki/Internet_of_Things">internet of things</a>?<br/>
+<p>
+To a large extent, yes. In essence, one can look at the device/adapter model
+described here as being analogous to the device/device driver model
+used by operating systems.
+In the case of an operating system, device drivers work with
+physical devices (i.e. keyboards, serial ports, disk drives, etc) as well
+as software-only devices (i.e. ramdisks, loopback devices, etc)
+to create a common access method (i.e. block and character devices).
+In this case, adapters work with devices that have a variety of device
+specific access controls, attributes and access methodologies to create
+a common access method - specifically the common access method described
+<a href="http://sensor.andrew.cmu.edu/xep/sox-xep.html">here</a>.
+Continuing this anaolgy, an agent is an entity that interacts with
+the information provided by one or more adapters in much the same way
+that an application interacts with information provided by one or more
+device drivers.
+</p>
+</li>
+<li>
+Sounds good in theory, but are there any implementations?<br/>
+<p>
+Yes.
+<a href="http://www.cmu.edu">Carnegie Mellon University (CMU)</a>
+is undertaking a project named
+<a href="http://www.ices.cmu.edu/censcir/sensor-andrew/">Sensor Andrew</a>
+which is a sensor network that will enable the dense instrumentation
+of the whole of Carnegie Mellon’s campus as a living laboratory
+for real-world infrastructure challenges. 
+</p>
+</li>
+<li>
+Cool, but I meant, an implementation I can play with... Where's the code?<br/>
+<p>
+TODO: can we simplify and put all under the same license?<br>
+The code for Sensor Andrew is open source (parts released under
+GNU license and parts under the apache license).
+There are libraries in both C and java as well as sample
+adapters and example code available via svn.
+The Sensor Andrew svn checkout string is:
+</p>
+<p>
+svn checkout svn://sensor.andrew.cmu.edu:/srv/svn/repos/sensor-andrew/sox
+</p>
+</li>
+<li>
+Any more documentation?<br/>
+<p>
+TODO: Documentation seems out of date<br/>
+</p>
+<p>
+<a href="http://sensor.andrew.cmu.edu:9000/wiki">http://sensor.andrew.cmu.edu:9000/wiki</a>
+</p>
+</li>
+<li>
+Does it work with any XMPP server?<br/>
+<p>
+Since SOX defines a payload format on top of XEP-0060, it works with
+any XMPP server
+that supports XEP-0060. Two servers that are known to work with SOX include:
+<ul>
+<li><a href="http://www.ejabberd.im/">ejabberd</a></li>
+<li><a href="http://www.igniterealtime.org/projects/openfire/index.jsp">openfire</a></li>
+</ul>
+</p>
+</li>
+<li>
+Where can I read the full SOX specification?<br/>
+<p>
+The SOX specification is available online at:
+</p>
+<p>
+<a href="http://sensor.andrew.cmu.edu/xep/sox-xep.html">http://sensor.andrew.cmu.edu/xep/sox-xep.html</a>
+</p>
+</li>
+<li>
+The SOX specification talks about "kelvin" for temperature.
+I want to use Fahrenheit because everyone knows what Fahrenheit means.<br/>
+<p>
+One of the biggest issues with sharing data in science is the need to
+use standardized units of measure. Although the United States may be
+a bit behind the times on this, most of the rest of the world has moved to
+<a href="http://physics.nist.gov/cuu/Units/">SI units</a>
+(aka the metric system).
+Therefore, to make the exchange of information consistent,
+the "on wire" format requires the use of SI units.
+All adapters (data producers) are required
+to convert from their sensor specific native units (such as Fahrenheit)
+to the corresponding
+SI unit (such as kelvin) so that agents (data consumers) know what to expect.
+It becomes a software nightmare for a data consumer if it needs to deal with
+data producers that may provide a distance measurement in feet,
+inches, meters, furlongs, fathoms, klafter, faden, etc.
+Remember, part of the point for SOX is to make it easier for people to
+write both data consumers as well as data producers which means restricting
+the list of possible units of measure for the "on wire" format.
+</p>
+</li>
+<li>
+If an adapter can handle "open" and
+"close", should the adapter be written to expect the string values
+"open" and "close"? Or should that be translated into numeric
+enumerations (0 and 1)?<br/>
+<p>
+Either one is fine, whatever works for your environment.
+</p>
+</li>
+<li>
+How would an agent know what the enumeration should be? Specifically,
+where does the "['open', 'close']" (list of enumerated values) or
+"{'open': 0, 'close':1}" (map between enumerated values and names) get
+passed from adapter to agent?.
+<p>
+The spec currently doesn't define a way to do this, but one way that we
+have used that works is to
+include a<br/>
+<br/>
+&lt;property name="enum" value="['open', 'close']" /&gt;<br/>
+<br/>
+to indicate it takes strings or<br/>
+<br/>
+&lt;property name="enum" value="{'open': 0, 'close':1}" /&gt;<br/>
+<br/>
+to indicate it takes numbers (which
+also defines the mapping of allowed values to numeric values).
+And yes, for those familiar with python, this corresponds to a list and
+a dict...
+</p>
+</li>
+<li>
+My sensor's enumerated data is a bitmap so it is easier to understand
+as a hex value. How can numbers be sent as hex?<br/>
+<p>
+The "on-wire" format for numbers should be decimal. When displaying the
+number to humans, feel free to use whatever format is appropriate (decimal,
+hex, binary, whatever), but any adapter on the network should be able to
+interpret that number as a decimal number.
+</p>
+</li>
+</ol>
+</body>

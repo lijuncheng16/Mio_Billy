@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <title>Graph API Test</title>
+   <link href="jquery-ui.css" media="screen" rel="stylesheet" type="text/css" />
+   <link href="grapher.css" media="screen" rel="stylesheet" type="text/css" />
+   <script src="jquery.min.js"></script>
+   <script src="jquery-ui.min.js" type="text/javascript"></script>
+   <script src="grapher4/grapher2.nocache.js"></script>
+   <script src="helpers.js" type="text/javascript"></script>
+
+   <script type="text/javascript">
+
+
+   /* global dictionary for all plots */
+   plots = {};
+   
+   urlDomains = [];
+   eventNode = '';
+
+      
+      function loadNodes()
+      {
+
+         $("#messageArea").html("loading...");
+         if(!urlDomains || (urlDomains.length < 1)){
+            urlDomains = [''];
+         }
+
+		   $.ajax({
+			   url: urlDomains[0] + "/info.json",
+            error: function(){$('#messageArea').html('error: connection failed');},
+            success: function(data, textStatus, jqXHR){
+
+               $("#messageArea").html("");
+
+               data = (typeof data === 'string') ? JSON.parse(data) : data;
+               feeds = data['channel_specs'];
+
+               var str = '';
+               var devices = {};
+               for(var key in feeds){
+                  var device = key.split('.')[0];
+                  devices[device] = 1;
+               }
+               str += '<option value="">Select Device...</option>';
+               for(var device in devices){
+                  str += '<option value="'+device+'">'+device+'</option>';
+               }
+               if(str != $('#nodes').html()){
+                  $('#nodes').html(str);
+               }
+            }
+         });
+      }
+
+
+      function loadGraph()
+      {
+
+      $("#messageArea").html("loading...");
+      if(!urlDomains || (urlDomains.length < 1)){
+         urlDomains = [''];
+      }
+
+		$.ajax({
+			url: urlDomains[0] + "/info.json",
+         error: function(){$('#messageArea').html('error: connection failed');},
+			success: function(data, textStatus, jqXHR){
+			
+			data = (typeof data === 'string') ? JSON.parse(data) : data;
+
+         $("#messageArea").html("");
+
+         //var startDate = new Date(2011, 6, 16, 0, 0, 0);
+         //var endDate = new Date(2011, 6, 17, 0, 0, 0);
+
+   
+         var plot5Style = {
+            "comments":{
+               "show":true,
+               "styles":[
+                  {
+                     "show":true,
+                     "type":"point",
+                     "color":"#00ff00",
+                     "radius":2,
+                     "lineWidth":1,
+                     "fill":true,
+                     "fillColor":"red"
+                  },
+                  {
+                     "show":true,
+                     "type":"point",
+                     "color":"#00ff00",
+                     "radius":4,
+                     "lineWidth":1,
+                     "fill":false,
+                     "fillColor":"green"
+                  }
+               ]},
+            "styles":[
+               {
+                  "type":"line",
+                  "color":"#ff0000",
+                  "lineWidth":1,
+                  "fill":true,
+                  "fillColor":"#ff0000"
+               }
+            ],
+            highlight:{
+               "lineWidth":2,
+               "styles":[
+                  {
+                     "type":"point",
+                     "color":"#ff0000",
+                     "radius":3,
+                     "lineWidth":1,
+                     "fill":true,
+                     "fillColor":"blue"
+                  }
+               ]
+            }
+         };
+
+			
+
+			feeds = data['channel_specs'];
+			var plots = [];
+			var plotContainers = [];
+			var dateAxes = [];
+
+
+         //var dateAxis = new DateAxis("dateAxis1", "horizontal", {"min":data.min_time, "max":data.max_time});
+
+         $('#mainContentArea').html('');
+      
+			var i=0;
+			for(var key in feeds){
+
+				device = key.split('.')[0]
+				chan = key.split('.')[1]
+
+            //if(device == '9f309de89779afbf0286c9b5e68e2ecc_data'){
+            if(device == eventNode){
+
+               $('#mainContentArea').append(' \
+                     <h2>'+key+'</h2> \
+                     <table border="0" cellpadding="0" cellspacing="0" width="80%"> \
+                     <tr> \
+                     <td width="*%"> \
+                     <div id="plotContainer'+(i+1)+'" class="plotContainer"> \
+                     <div id="pc'+(i+1)+'" class="plot"></div> \
+                     </div> \
+                     </td> \
+                     <td class="axisCell"> \
+                     <div id="yAxisContainer'+(i+1)+'" class="yAxisContainer"> \
+                     <div id="yAxis'+(i+1)+'" class="yAxis"></div> \
+                     </div> \
+                     </td> \
+                     </tr> \
+                     <tr> \
+                     <td width="*%"> \
+                     <div id="dateAxisContainer'+(i+1)+'" class="dateAxisContainer"> \
+                     <div id="dateAxis'+(i+1)+'" class="dateAxis"></div> \
+                     </div> \
+                     </td> \
+                     </tr> \
+                     </table> \
+                     <hr> \
+                     ');
+
+               dateAxes[i] = new DateAxis("dateAxis"+(i+1), "horizontal", 
+                     {"min":feeds[key]['channel_bounds']['min_time'], 
+                     "max":feeds[key]['channel_bounds']['max_time']});
+
+               plots[i] = createPlot(device, chan, plot5Style, true, dateAxes[i], "yAxis"+(i+1), 
+                     {'min':feeds[key]['channel_bounds']['min_value'], 
+                     'max':feeds[key]['channel_bounds']['max_value']});
+               //plots[plots.length-1].addDataPointListener(displayValue);
+               plotContainers[i] = new PlotContainer("pc"+(i+1), [plots[i]]);
+               i++;
+            }
+         
+         }
+
+         
+			   }
+			});
+		};
+
+
+   </script>
+
+</head>
+
+<body>	
+ 
+   <div>
+      <form style="display:inline;">
+         <input id="domain" style="width:300px" type="text" placeholder="optional domain (ex. http://192.168.1.1:8000)" />
+         <input type="button" value="go" onclick="  urlDomains=[$('#domain').attr('value')]; loadNodes();  "/>
+      </form>
+      <div style="display:inline;" id="messageArea"></div>
+      <div>
+         <select id="nodes" onchange="eventNode=this.value; loadGraph();">
+         </select>
+      </div>
+  </div>
+
+
+   <div id="mainContentArea">
+      <!-- <div style='clear:both;'></div> -->
+   </div>
+
+
+</body>
+</html>
+

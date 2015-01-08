@@ -1,0 +1,1055 @@
+#include "libhue.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <curl/curl.h>
+#include <jsmn.h>
+
+
+typedef enum { START, STATE, ARRAY_OBJ, RESULT_OBJ, KEY, VALUE, STOP } _parse_state;
+
+int _parse_set_light_attributes(response_buf_t *response);
+int _parse_set_light_state(response_buf_t *response);
+char* _create_user_parse(response_buf_t *response);
+hue_bridge_t* _parse_bridges(response_buf_t* response);
+hue_configuration_t* _configuration_parse(response_buf_t* response);
+hue_bulb_t* _parse_light_attributes(response_buf_t* response );
+hue_bulb_t* parse_get_all_lights(response_buf_t *response);
+
+response_buf_t* write_post_request(char* json_url, char* json_request);
+response_buf_t* write_get_request(char* get_url);
+response_buf_t* write_put_request(char* json_url, char* json_request);
+
+void release_response_buf(response_buf_t* resp);
+
+hue_configuration_t* get_configuration(hue_bridge_t* bridge, char* username);
+
+/************************************ Public API ***************************************/
+
+char* create_user(hue_bridge_t* bridge, char* username, char* device_type) {
+    char json_url[255];
+    char json_request[1024];
+    response_buf_t* response;
+
+    if (device_type != NULL)
+    {
+        if (username != NULL)
+            sprintf(json_request, "{\"username\": \"%s\", \"devicetype\": \"%s\"}", username,device_type);
+        else
+            sprintf(json_request, "{\"devicetype\": \"%s\"}", device_type);
+    } else
+    {
+        fprintf(stderr, "Device type required for user creation.\n");
+        return NULL;
+    }
+
+    sprintf(json_url, "http://%s/api", bridge -> ip);
+    response = write_post_request(json_url,json_request);
+    if ((username = _create_user_parse(response)) == NULL)
+       fprintf(stderr,"Could not create user. Try pressing bridge button.\n");
+
+    release_response_buf(response);
+    return username;
+}
+
+//GET www.meethue.com/api/nupnp
+hue_bridge_t* discover_local_bridges()
+{
+    hue_bridge_t* bridge;
+    response_buf_t * response;
+    char*url = (char*)malloc(DISCOVER_URL_SIZE);
+    if (url == NULL)
+        return NULL;
+    if (sprintf(url,DISCOVER_BRIDGES_URL) < 0)
+    {
+        free(url);
+        return NULL;
+    }
+    response = write_get_request(url);
+    bridge = _parse_bridges(response);
+    release_response(response);
+    free(url); 
+    return bridge;
+}
+
+
+// GET /api/<username>/config
+hue_configuration_t* get_configuration(hue_bridge_t* bridge, char* username)
+{
+    char json_url[255];
+    response_buf_t* response;
+    hue_configuration_t *configuration;
+    if (sprintf(json_url, "http://%s/api/%s/config", bridge -> ip, username) < 0)
+       return NULL;
+    response = write_get_request(json_url);
+    configuration = _configuration_parse(response);
+    release_response_buf(response);
+    return configuration;
+}
+
+// GET /api/<username>/lights/<id>
+hue_bulb_t* get_light_attributes(hue_bridge_t* bridge, hue_user_t* user, int bulb_id)
+{
+    char json_url[255];
+    hue_bulb_t *bulb;
+    response_buf_t* response;
+    if (sprintf(json_url, "http://%s/api/%s/lights/%d", bridge -> ip, user ->username , bulb_id) < 0)
+      return NULL;
+    response = write_get_request(json_url);
+    bulb = _parse_light_attributes(response);
+    release_response_buf(response);
+    return bulb;
+}
+
+
+// GET /api/<username>/lights
+hue_bulb_t* get_all_lights(hue_bridge_t* bridge, hue_user_t* user)
+{
+    char url[512];
+    response_buf_t* response;
+    hue_bulb_t* hue;
+    if (sprintf(url,"%s/api/%s/lights", bridge -> ip, user -> username) < 0)
+        return NULL;
+    response = write_get_request(url);
+    hue = parse_get_all_lights(response);
+    release_response_buf(response);
+    return hue;
+}
+
+
+// PUT /api/<username>/lights/<id>
+int set_light_attributes(hue_bridge_t* bridge, char* user, int bulb_id, char* name)
+{
+    char url[512];
+    char json[512];
+    int retval = 0;
+    if (sprintf(json,"{\"name\":\"%s\"}", name) < 0)
+        return NULL;
+    if (sprintf(url,"%s/api/%s/lights/%d", bridge -> ip, user, bulb_id) < 0)
+        return NULL;
+    
+    response_buf_t* response = write_put_request(url, json);
+    
+    if (response != NULL)
+        retval = _parse_set_light_attributes(response);
+    else
+        retval = 1;
+
+    release_response_buf(response);
+    return retval;
+}
+
+// PUT /api/<username>/lights/<id>/state
+int set_light_state(hue_bridge_t* bridge, char* user, int bulb_id, char* name, char* val)
+{
+    int retval;
+    char url[512];
+    char state[1024];
+    hue_bulb_t *bulb;
+    hue_user_t *h_user;
+
+    sprintf(url, "%s/api/%s/lights/%d/state/", bridge -> ip,
+            user, bulb_id);
+    
+    h_user = new_hue_user(NULL,NULL,NULL);
+    h_user -> username = _string_copy(user);
+
+    bulb = get_light_attributes(bridge, h_user, bulb_id);
+    if (sprintf(state,"{\"%s\":%s ", name, val) < 0)
+    {
+        return NULL;
+    }
+    if (strcmp(name,"bri\0") != 0)
+        sprintf(state,"%s, \"bri\":%d",state,bulb -> state -> bri);
+    if (strcmp(name,"hue\0") != 0)
+        sprintf(state,"%s, \"hue\":%d",state,bulb -> state -> hue);
+    if (strcmp(name,"sat\0") != 0)
+        sprintf(state,"%s, \"sat\":%d",state,bulb -> state -> sat);
+    sprintf(state,"%s}",state);
+
+    response_buf_t* response = write_put_request(url,state);
+
+    if (response != NULL)
+    {
+        retval = _parse_set_light_attributes(response);
+    } else
+        retval = 1;
+    hue_user_free(h_user);
+    release_response_buf(response);
+    return retval;
+}
+
+
+/* END Public API */
+
+/********************************* JSON HTTP Utilities ******************************/
+
+static size_t receive_data(void *buffer, size_t size, size_t n_memb, void *userdata)
+{
+    response_buf_t *buf = ((response_buf_t*)userdata);
+    size_t realsize = size * n_memb;
+
+    if (buf -> buf != NULL)
+    	buf ->buf = realloc(buf->buf, buf->buf_size + realsize + 1);
+    else 
+    {
+        buf -> buf_size = 0;
+        buf -> buf = malloc(realsize + 1);
+    }
+    if(buf->buf == NULL) {
+        /* out of memory! */
+        printf("not enough memory (realloc returned NULL)\n");
+        return 0;
+    }
+
+    memcpy(&(buf->buf[buf->buf_size]), buffer, realsize);
+    buf->buf_size += realsize;
+    buf->buf[buf->buf_size] = 0;
+    return realsize;
+}
+
+response_buf_t* write_get_request(char* get_url)
+{
+    CURL *curl;
+    CURLcode curl_status;
+
+    response_buf_t* response = NULL;
+    curl = curl_easy_init();
+
+    if (curl) {
+        response = new_response_buf();
+        curl_easy_setopt(curl, CURLOPT_URL, get_url);
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Accept: application/json");
+        curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, receive_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+        curl_status = curl_easy_perform(curl);
+
+        if (curl_status != CURLE_OK)
+            fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                    curl_easy_strerror(curl_status));
+        curl_easy_cleanup(curl);
+    } else {
+        printf("Curl Easy Init failed\n");
+        return NULL;
+    }
+
+    return response;
+}
+
+
+response_buf_t* write_post_request(char* json_url, char* json_request)
+{
+    CURL *curl;
+    CURLcode curl_status;
+
+    curl = curl_easy_init();
+
+    response_buf_t* response = new_response_buf();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, json_url);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_request);
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Accept: application/json");
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        headers = curl_slist_append(headers, "charsets: utf-8");
+        curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, receive_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, response);
+
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(json_request));
+        // receive_unlock
+        curl_status = curl_easy_perform(curl);
+
+        if (curl_status != CURLE_OK)
+            fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                    curl_easy_strerror(curl_status));
+        curl_easy_cleanup(curl);
+    } else {
+      printf("Curl could not initialize\n");
+	free(response);
+        return NULL;
+    }
+
+    return response;
+}
+
+response_buf_t* write_put_request(char* json_url, char* json_request)
+{
+    CURL *curl;
+    CURLcode curl_status;
+
+    struct curl_slist *headers = NULL;
+    response_buf_t* response;
+    curl = curl_easy_init();
+
+    if (curl) {
+        response = new_response_buf();
+        headers = curl_slist_append(headers, "Accept: application/json");
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        headers = curl_slist_append(headers, "charsets: utf-8");
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers);
+
+        curl_easy_setopt(curl, CURLOPT_URL, json_url);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_request);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, receive_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA,  response);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(json_request));
+        curl_status = curl_easy_perform(curl);
+
+        if (curl_status != CURLE_OK)
+        {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                    curl_easy_strerror(curl_status));
+            release_response_buf(response);
+            response = NULL;
+        }
+        curl_easy_cleanup(curl);
+    } else {
+        return NULL;
+    }
+
+    curl_global_cleanup();
+
+    return response;
+}
+
+/* END of  */
+
+/********************* JSON Parsing Utilities ***********************/
+
+char* _get_tok_string(char* json, jsmntok_t *token)
+{
+    int length = token->end - token->start;
+    char* keyString = (char*) malloc(length + 1);
+    memcpy(keyString, &json[token->start], length);
+    keyString[length] = '\0';
+    return keyString;
+}
+
+int _tok_strcmp(char* json, jsmntok_t *tok, char* str)
+{
+    return (strncmp((char*)(json + tok->start), str, tok->end - tok->start) == 0
+            && strlen(str) == (size_t) (tok->end - tok->start));
+}
+
+jsmntok_t* _json_tokenize(char* json)
+{
+    int jsmn_result, n_tokens = N_TOKENS;
+    jsmn_parser parser;
+    jsmntok_t *tokens = (jsmntok_t*) malloc(n_tokens*sizeof(jsmntok_t));
+    if (tokens == NULL)
+        return NULL;
+
+    jsmn_init(&parser);
+    jsmn_result = jsmn_parse(&parser,json,tokens,n_tokens);
+
+    while (jsmn_result == JSMN_ERROR_NOMEM)
+    {
+        n_tokens = n_tokens*2;
+        tokens = realloc(tokens,sizeof(jsmntok_t)*n_tokens);
+        if (tokens == NULL)
+        {
+            return NULL;
+        }
+        jsmn_result = jsmn_parse(&parser,json,tokens,n_tokens);
+    }
+    if (jsmn_result < 0)
+        return NULL;
+    return tokens;
+}
+
+/* END json parsing utilities */
+
+
+// JSON parsing functions
+//
+char* _create_user_parse(response_buf_t *response)
+{
+    int sub_tokens, state = START;
+    int tok, j;
+    char *key,*val;
+    jsmntok_t *t, *tokens; // a number >= total number of tokens
+
+    if ((response == NULL) || (response -> buf == NULL))
+    {
+        return NULL;
+    }
+    tokens = _json_tokenize(response->buf);
+    if (tokens == NULL)
+        return NULL;
+    for (tok = 0, j = 1; j > 0; tok++, j--)
+    {
+        t = &tokens[tok];
+            j += t->size;
+        switch (state)
+        {
+        case START:
+            state = RESULT_OBJ;
+            break;
+	   case RESULT_OBJ:
+            state = KEY;
+            break;
+        case KEY:
+                state = VALUE;
+                key = _get_tok_string(response -> buf, t);
+            
+            break;
+        case VALUE:
+            val = _get_tok_string(response->buf,t);
+            if (key == NULL) {
+               if (val)
+                free(val);
+            } else if (strcmp(key,"success") == 0)
+            {
+                free(key);
+                if (val)
+		            free(val);
+                state = KEY;
+                continue;
+            } else if (strcmp(key,"username") == 0)
+            {
+                free(key);
+                free(tokens);
+                return val;
+            }
+            if (key)
+                free(key);
+            if (val)
+                free(val);
+
+            if (j == 0)
+                state = STOP;
+            else
+                state = KEY;
+            break;
+        }
+
+    }
+
+    free(tokens);
+    return NULL;
+
+}
+
+hue_bridge_t* _parse_bridges(response_buf_t* response)
+{
+
+
+    int sub_tokens, state = START;
+    int tok, j;
+    char *key,*val;
+    hue_bridge_t *bridge;
+    hue_bridge_t *start_bridge;
+    jsmntok_t *t, *tokens; // a number >= total number of tokens
+    
+    if ((response == NULL) || (response -> buf == NULL))
+        return NULL;
+    tokens = _json_tokenize(response->buf);
+    if (tokens == NULL)
+        return NULL;
+    bridge = (hue_bridge_t*) malloc(sizeof(hue_bridge_t));
+    start_bridge = bridge;
+    memset(bridge,0x0,sizeof(hue_bridge_t));
+    for (tok = 0, j = 1; j > 0; tok++, j--)
+    {
+        t = &tokens[tok];
+        if (t->type == JSMN_ARRAY || t->type == JSMN_OBJECT)
+            j += t->size;
+
+        switch (state)
+        {
+        case START:
+            state = KEY;
+            sub_tokens = t -> size;
+            if (sub_tokens == 0)
+                state = STOP;
+            break;
+
+        case ARRAY_OBJ:
+            state = KEY;
+            break;
+
+        case KEY:
+            sub_tokens--;
+
+            if (t -> type == JSMN_OBJECT)
+            {
+                state = KEY;
+            } else if (t -> type == JSMN_STRING)
+            {
+                state = VALUE;
+                key = _get_tok_string(response -> buf, t);
+            }
+            break;
+
+        case VALUE:
+            sub_tokens--;
+            val = _get_tok_string(response->buf,t);
+            if (key == NULL) {
+            }
+              else if (strcmp(key,"id") == 0)
+            {
+		
+		if (bridge -> id != NULL)
+                {
+			bridge -> hh.next = malloc(sizeof(hue_bridge_t));
+			bridge = bridge -> hh.next;
+			memset(bridge,0x0,sizeof(hue_bridge_t));
+                }
+                bridge -> id = val;
+            } else if (strcmp(key,"internalipaddress") == 0)
+            {
+		if (bridge -> ip != NULL)
+                {
+			bridge -> hh.next = malloc(sizeof(hue_bridge_t));
+			bridge = bridge -> hh.next;
+			memset(bridge,0x0,sizeof(hue_bridge_t));
+                }
+                bridge-> ip = val;
+            } else if (strcmp(key,"macaddress") == 0)
+            {
+		
+		if (bridge -> mac != NULL)
+                {
+			bridge -> hh.next = malloc(sizeof(hue_bridge_t));
+			bridge = bridge -> hh.next;
+			memset(bridge,0x0,sizeof(hue_bridge_t));
+                }
+                bridge-> mac = val;
+            }
+            if (sub_tokens == 0)
+                state = STOP;
+            else
+                state = KEY;
+            break;
+
+        case STOP:
+            break;
+
+        }
+    }
+    free(tokens);
+    return start_bridge;
+}
+
+hue_configuration_t* _configuration_parse(response_buf_t* response)
+{
+
+    if ((response == NULL) || (response -> buf == NULL))
+    {
+        printf("response is NULL\n");
+        return NULL;
+    }
+
+    int sub_tokens, state = START;
+    int tok, j;
+    char *key,*val;
+    hue_configuration_t *configuration = new_hue_configuration();
+    jsmntok_t *t, *tokens = _json_tokenize(response->buf); // a number >= total number of tokens
+
+    for (tok = 0, j = 1; j > 0; tok++, j--)
+    {
+        t = &tokens[tok];
+        if (t->type == JSMN_ARRAY || t->type == JSMN_OBJECT)
+            j += t->size;
+
+        switch (state)
+        {
+        case START:
+            state = KEY;
+            sub_tokens = t -> size;
+            if (sub_tokens == 0)
+                state = STOP;
+            break;
+        case KEY:
+            sub_tokens--;
+
+            if (t -> type == JSMN_OBJECT)
+            {
+                state = KEY;
+            } else if (t -> type == JSMN_STRING)
+            {
+                state = VALUE;
+                key = _get_tok_string(response -> buf, t);
+            }
+            break;
+        case VALUE:
+            sub_tokens--;
+            val = _get_tok_string(response->buf,t);
+            if (strcmp(key,"proxyport") == 0)
+            {
+                configuration -> proxyport = atoi(val);
+            } else if (strcmp(key,"name") == 0)
+            {
+                memcpy(configuration -> name,val,16);
+                free(val);
+            } else if (strcmp(key,"proxyaddress"))
+            {
+                memcpy(configuration -> proxy_address, val,40);
+                free(val);
+            } else if (strcmp(key,"linkbutton"))
+            {
+                configuration -> linkbutton = atoi(val);
+                free(val);
+            } else if (strcmp(key,"dhcp") == 0)
+            {
+                configuration -> dhcp = atoi(val);
+                free(val);
+            } else if (strcmp(key,"portalservices") == 0)
+            {
+                configuration -> portal_services = atoi(val);
+            }
+
+            free(key);
+            if (sub_tokens == 0)
+                state = STOP;
+            else
+                state = KEY;
+            break;
+
+        case STOP:
+            break;
+
+        }
+    }
+    free(tokens);
+    return configuration;
+}
+
+hue_bulb_t* _parse_light_attributes(response_buf_t* response )
+{
+    if ((response == NULL) || (response -> buf == NULL))
+    {
+        printf("response is NULL\n");
+        return NULL;
+    }
+
+    int tok, j, sub_tokens, state = START;
+    char *key,*val,*w;
+    hue_bulb_t *bulb = (hue_bulb_t*) malloc(sizeof(hue_bulb_t));
+    memset(bulb,0x0,sizeof(hue_bulb_t));
+    jsmntok_t *t, *tokens = _json_tokenize(response->buf); // a number >= total number of tokens
+
+    for (tok = 0, j = 1; j > 0; tok++, j--)
+    {
+        t = &tokens[tok];
+        w = _get_tok_string(response -> buf, t);
+        if (t->type == JSMN_ARRAY || t->type == JSMN_OBJECT)
+            j += t->size;
+
+        switch (state)
+        {
+        case START:
+           
+            state = KEY;
+            sub_tokens = t -> size;
+            if (sub_tokens == 0)
+                state = STOP;
+            break;
+        case KEY:
+            sub_tokens--;
+
+            if (sub_tokens == 0)
+            {
+                state = STOP;
+                free(key);
+                continue;
+            }
+            if (t -> type == JSMN_OBJECT)
+            {
+                state = KEY;
+            } else if (t -> type == JSMN_STRING)
+            {
+                state = VALUE;
+                key = _get_tok_string(response -> buf, t);
+            }
+            break;
+        case STATE:
+
+            sub_tokens--;
+            state = KEY;
+            break;
+        case VALUE:
+            sub_tokens--;
+            val = _get_tok_string(response->buf,t);
+            if (strcmp(key,"state") == 0)
+            {
+                bulb -> state = new_hue_state();
+            } else if (strcmp(key,"type") == 0)
+            {
+                bulb -> type = val;
+            } else if (strcmp(key,"alert") == 0)
+            {
+                bulb -> state -> alert = val;
+            }else if (strcmp(key,"name") == 0)
+            {
+                bulb -> name = val;
+            } else if (strcmp(key,"modelid") == 0)
+            {
+                bulb -> model = val;
+            } else if (strcmp(key,"swversion") == 0)
+            {
+                bulb -> sw_version = val;
+            } else if (strcmp(key,"on") == 0)
+            {
+                if (strcmp(val,"false") == 0)
+                {
+                    bulb -> state -> on = 0;
+                } else
+                    bulb -> state -> on = 1;
+                free(val);
+            } else if (strcmp(key,"bri") == 0)
+            {
+                bulb -> state -> bri= atoi(val);
+                free(val);
+            } else if (strcmp(key,"hue") == 0)
+            {
+                bulb -> state -> hue = atoi(val);
+                free(val);
+            } else if (strcmp(key,"sat") == 0)
+            {
+                bulb -> state -> sat = atoi(val);
+                free(val);
+            } else if (strcmp(key,"ct") == 0)
+            {
+                bulb -> state -> ct = atoi(val);
+                free(val);
+            }  else if (strcmp(key,"effect") == 0)
+            {
+
+                bulb -> state -> effect = (val);
+            } else if (strcmp(key,"colormode") == 0)
+            {
+                bulb -> state -> colormode = val;
+            } else if (strcmp(key,"reachable") == 0)
+            {
+                if (strcmp(val,"true") == 0)
+                    bulb -> state -> reachable = 1;
+                else
+                    bulb -> state -> reachable = 0;
+                free(val);
+            }else if (strcmp(key,"xy") == 0)
+            {
+
+                 sscanf(val,"[%lf,%lf]",& bulb -> state -> x,& bulb -> state -> y);
+                 tok += 2;
+                 j-=2;
+            }
+            if (t -> type == JSMN_OBJECT)
+            	sub_tokens += t -> size-1; 
+            if (sub_tokens == 0)
+                state = STOP;
+            else
+                state = KEY;
+            break;
+
+        case STOP:
+            break;
+
+        }
+        free(w);
+    }
+   
+    return bulb;
+}
+
+hue_bulb_t* parse_get_all_lights(response_buf_t *response)
+{
+    if ((response == NULL) || (response -> buf == NULL))
+    {
+        printf("response is NULL\n");
+        return NULL;
+    }
+
+    int tok, j, sub_tokens, state = START;
+    int bulb_id;
+    char *key,*val, *w;
+    hue_bulb_t *bulb = NULL;
+    hue_bulb_t *begin_bulb = NULL;
+    jsmntok_t *t, *tokens = _json_tokenize(response->buf); // a number >= total number of tokens
+
+    for (tok = 0, j = 1; j > 0; tok++, j--)
+    {
+        t = &tokens[tok];
+        w = _get_tok_string(response -> buf, t);
+        if (t->type == JSMN_ARRAY || t->type == JSMN_OBJECT)
+            j += t->size;
+
+        
+        switch (state)
+        {
+        case START:
+            state = RESULT_OBJ;
+            sub_tokens = t -> size;
+            if (sub_tokens == 0)
+                state = STOP;
+            break;
+	case RESULT_OBJ:
+		
+            state = KEY; 
+            sscanf(w,"%d",&bulb_id);
+            if (sub_tokens == 0)
+                state = STOP;
+            break;
+        case KEY:
+            sub_tokens--;
+
+            if (t -> type == JSMN_OBJECT)
+            {
+                printf("%s\n",w);
+
+                if (begin_bulb == NULL)
+                {
+                    bulb = new_hue_bulb();
+                    begin_bulb = bulb;
+                } else
+                {
+                    bulb ->next = new_hue_bulb();
+                    bulb = bulb -> next;
+                }
+                bulb -> id = bulb_id;
+                state = KEY;
+            } else if (t -> type == JSMN_STRING)
+            {
+                state = VALUE;
+                key = _get_tok_string(response -> buf, t);
+            }
+            break;
+        case VALUE:
+            sub_tokens--;
+            val = _get_tok_string(response->buf,t);
+            if (strcmp(key,"name") == 0)
+            {
+                bulb -> name = val;
+            }
+            if (sub_tokens == 0)
+                state = STOP;
+            else
+                state = KEY;
+            break;
+
+        case STOP:
+            break;
+
+        }
+	free(w);
+    }
+    return bulb;
+}
+
+int _parse_set_light_attributes(response_buf_t *response)
+{
+    if ((response == NULL) || (response -> buf == NULL))
+    {
+        printf("response is NULL\n");
+        return 1;
+    }
+
+    int tok, j, sub_tokens, state = START;
+    jsmntok_t *t, *tokens = _json_tokenize(response->buf); // a number >= total number of tokens
+    char* key, *w;
+    for (tok = 0, j = 1; j > 0; tok++, j--)
+    {
+        t = &tokens[tok];
+        if (t->type == JSMN_ARRAY || t->type == JSMN_OBJECT)
+            j += t->size;
+
+        w = _get_tok_string(response -> buf, t);
+        switch (state)
+        {
+        case START:
+printf("start %s\n", w);
+            state = KEY;
+            sub_tokens = t -> size;
+            if (sub_tokens == 0)
+                state = STOP;
+            break;
+        case KEY:
+printf("key %s\n", w);
+            sub_tokens--;
+            key = _get_tok_string(response -> buf, t);
+            if (strcmp(key,"success") == 0)
+            {
+                return 0;
+            }
+            break;
+        case STOP:
+printf("stop %s\n", w);
+            break;
+
+        }
+    }
+    return 1;
+}
+
+int parse_set_state_atrributes(response_buf_t *response)
+{
+    if ((response == NULL) || (response -> buf == NULL))
+    {
+        printf("response is NULL\n");
+        return 1;
+    }
+    char* key;
+    int tok, j, sub_tokens, state = START;
+    jsmntok_t *t, *tokens = _json_tokenize(response->buf); // a number >= total number of tokens
+
+    for (tok = 0, j = 1; j > 0; tok++, j--)
+    {
+        t = &tokens[tok];
+        if (t->type == JSMN_ARRAY || t->type == JSMN_OBJECT)
+            j += t->size;
+
+        switch (state)
+        {
+        case START:
+            state = KEY;
+            sub_tokens = t -> size;
+            if (sub_tokens == 0)
+                state = STOP;
+            break;
+        case KEY:
+            sub_tokens--;
+            key = _get_tok_string(response -> buf, t);
+
+            if (strcmp(key,"success") == 0)
+            {
+                return 0;
+            }
+            break;
+        case VALUE:
+            sub_tokens--;
+
+            if (sub_tokens == 0)
+                state = STOP;
+            else
+                state = KEY;
+            break;
+
+        case STOP:
+            break;
+
+        }
+    }
+    return 1;
+}
+/*
+int parse_modify_configuration(response_buf_t *response)
+{
+}
+*/
+
+/* END JSON parsing functions */
+
+/************************ STRUCT INITIALIZATION FUNCTIONS ******************************/
+
+hue_user_t* new_hue_user(char* url, char* addr, hue_bulb_t* bulbs)
+{
+    hue_user_t* user = (hue_user_t*) malloc(sizeof(hue_user_t));
+    memset(user,0x0,sizeof(hue_user_t));
+    user -> bulbs = bulbs;
+    if (url != NULL)
+        memcpy(user -> json_url,url,255);
+    if (addr != NULL)
+        memcpy(user -> json_addr,addr,255);
+    return user;
+}
+void free_hue_configuration(hue_configuration_t * configuration)
+{
+    free(configuration);
+}
+void free_hue_bulbs(hue_bulb_t *bulbs)
+{
+    free(bulbs);
+}
+void release_hue_user(hue_user_t* user)
+{
+    if (user == NULL)
+        return;
+    if (user -> bulbs != NULL)
+        free_hue_bulbs(user -> bulbs);
+    free(user);
+}
+
+hue_bulb_t* new_hue_bulb()
+{
+    hue_bulb_t* bulb = (hue_bulb_t*) malloc(sizeof(hue_bulb_t));
+    memset(bulb, 0x0, sizeof(hue_bulb_t));
+    return bulb;
+}
+
+void free_hue_bulb(hue_bulb_t* bulb)
+{
+    if (bulb == NULL)
+        return;
+    if (bulb -> name != NULL)
+        free(bulb -> name);
+    if (bulb -> state != NULL)
+        free_hue_state(bulb -> state);
+    free(bulb);
+}
+
+hue_state_t* new_hue_state()
+{
+    hue_state_t* state = (hue_state_t*) malloc(sizeof(hue_state_t));
+    memset(state,0x0,sizeof(hue_state_t));
+    return state;
+}
+
+void free_hue_state(hue_state_t* state)
+{
+    if (state == NULL)
+        return;
+    if (state -> alert != NULL)
+        free(state -> alert);
+    if (state -> effect != NULL)
+        free(state -> effect);
+    free(state);
+}
+
+hue_configuration_t* new_hue_configuration()
+{
+    hue_configuration_t * config = (hue_configuration_t*) malloc(sizeof(hue_configuration_t));
+    memset(config,0x0,sizeof(hue_configuration_t));
+    return config;
+}
+
+void release_hue_configuration(hue_configuration_t* config)
+{
+    free(config);
+}
+
+response_buf_t* new_response_buf()
+{
+    response_buf_t * buf = (response_buf_t*) malloc(sizeof(response_buf_t));
+    memset(buf,0x0,sizeof(response_buf_t));
+    return buf;
+}
+
+void release_response_buf(response_buf_t* resp)
+{
+    free(resp);
+
+}
+
+hue_bridge_t* new_hue_bridge()
+{
+    hue_bridge_t* bridge = (hue_bridge_t*) malloc(sizeof(hue_bridge_t));
+    memset(bridge,0x0,sizeof(hue_bridge_t));
+    return bridge;
+}
+
+void free_hue_bridge(hue_bridge_t* bridge)
+{
+    free(bridge);
+}
+
+/* END struct initialization */
+
+

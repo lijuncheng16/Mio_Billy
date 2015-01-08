@@ -1,0 +1,2 @@
+# Prevents directory listing
+Options -Indexes

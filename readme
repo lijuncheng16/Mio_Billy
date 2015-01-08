@@ -1,0 +1,65 @@
+This is the mio repository.
+
+/////////////////////// Libraries /////////////////////////////////
+
+These are the mio libraries.
+
+-libstrophe
+This is the c strophe xmpp library which MIO uses.
+
+to build:
+cd [mio_path]/libs/c/libstrophe
+./configure
+make 
+su -c 'make install'
+
+-libc_strophe
+C MIO bindings to the c strophe library
+
+to build:
+cd [mio_path]/libs/c/libMIO
+make
+
+///////////////////////// Adapter //////////////////////////////////////
+
+Under the adapters directiory there is the adapters available for mio.
+These include. 
+- Phillips Hue
+- Inscope Enfuse
+- Public Unitary Protocol (PUP)
+- BACnet/IP
+- ModbusRTU/ModbusTCP
+
+For instructions for building the individual drivers refer to the install.txt in the adapter directory
+
+///////////////////////// Services //////////////////////////////////////
+
+Respawn
+
+Quickset
+
+IPC Daemon
+
+///////////////////////// Tools ///////////////////////////////////////////
+
+cmd-line
+These are command line interfaces to mio.
+
+
+build instructions:
+First build libstrophe and libc_strophe.
+cd ./tools/cmd-line/c/
+make all
+
+See individual help commands for instructions on each utility's use.
+
+
+Python
+Python command line interface for MIO
+
+
+Fuse
+Plugin that makes MIO behave just like a file system.
+See directory for further instllation instructions.
+
+
